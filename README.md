@@ -84,7 +84,7 @@ This compiles, assembles `build/DynamicIsland.app` and launches it. Other comman
 | `make icon` | Regenerates `Resources/AppIcon.icns` |
 | `make clean` | Deletes build products |
 
-The app has no Dock icon; use the capsule icon in the menu bar to open Settings, temporarily hide the island, or quit.
+The app has no Dock icon; use the capsule icon in the menu bar to open Settings, temporarily hide the island, or quit. You can also hide the capsule icon from its own menu or in Settings › General › Display; then click the gear in the expanded top bar, or open DynamicIsland again from Finder or Spotlight, to get to Settings.
 
 ## Permissions on first launch
 

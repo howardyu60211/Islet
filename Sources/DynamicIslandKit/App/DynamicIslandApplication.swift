@@ -46,4 +46,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         services?.stop()
     }
+
+    /// 已經在執行時又從 Finder／Spotlight 打開：顯示設定（選單列圖示可能被隱藏了）。
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        services?.showSettings()
+        return false
+    }
 }

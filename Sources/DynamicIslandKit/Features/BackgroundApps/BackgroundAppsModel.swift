@@ -27,6 +27,8 @@ final class BackgroundAppsModel {
     }
 
     static let defaultsKey = "backgroundApps"
+    /// 頂部條沒有麥克風／螢幕錄影指示時剛好放得下的數量。
+    static let maxApps = 5
 
     private(set) var apps: [App] = []
     private(set) var runningIdentifiers: Set<String> = []
@@ -80,10 +82,13 @@ final class BackgroundAppsModel {
 
     // MARK: - 編輯
 
-    /// 加入一個 .app；不是 App、是動態島自己或已經在清單裡時回傳 false。
+    var isFull: Bool { apps.count >= Self.maxApps }
+
+    /// 加入一個 .app；已經滿了、不是 App、是動態島自己或已經在清單裡時回傳 false。
     @discardableResult
     func add(_ url: URL) -> Bool {
-        guard let id = Bundle(url: url)?.bundleIdentifier,
+        guard !isFull,
+              let id = Bundle(url: url)?.bundleIdentifier,
               id != Bundle.main.bundleIdentifier,
               !apps.contains(where: { $0.bundleIdentifier == id })
         else { return false }

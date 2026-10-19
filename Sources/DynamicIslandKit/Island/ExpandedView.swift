@@ -69,7 +69,7 @@ private struct ExpandedHeader: View {
                     BatteryIndicator(battery: island.battery)
                 } else {
                     // 有麥克風／螢幕錄影指示時位置比較少
-                    BackgroundAppsTray(island: island, maxVisible: island.activeSensors.isEmpty ? 5 : 3)
+                    BackgroundAppsTray(island: island, maxVisible: island.activeSensors.isEmpty ? BackgroundAppsModel.maxApps : 3)
                 }
                 HeaderIconButton(symbol: "gearshape.fill", label: tr("設定", "Settings")) {
                     island.openSettings()

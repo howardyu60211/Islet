@@ -54,6 +54,20 @@ struct BackgroundAppsModelTests {
         #expect(restored.apps.map(\.bundleIdentifier) == ["com.apple.Chess"])
     }
 
+    @Test func stopsAtTheLimit() throws {
+        let apps = try FileManager.default.contentsOfDirectory(atPath: "/System/Applications")
+            .filter { $0.hasSuffix(".app") }
+            .map { URL(fileURLWithPath: "/System/Applications/\($0)") }
+        try #require(apps.count > BackgroundAppsModel.maxApps)
+        let model = BackgroundAppsModel(defaults: defaults, runningBundleIdentifiers: { [] })
+        let added = apps.filter { model.add($0) }
+        #expect(added.count == BackgroundAppsModel.maxApps)
+        #expect(model.isFull)
+
+        model.remove(model.apps[0])
+        #expect(!model.isFull)
+    }
+
     @Test func reordersApps() {
         let model = makeModel()
         model.add(calculator)

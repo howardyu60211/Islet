@@ -137,6 +137,8 @@ final class AppServices {
         switch key {
         case Preferences.Key.islandHidden:
             windowController.updatePlacement()
+        case Preferences.Key.menuBarIconHidden:
+            statusMenu?.setIconVisible(!preferences.menuBarIconHidden)
         case Preferences.Key.musicEnabled:
             if preferences.musicEnabled {
                 nowPlaying.start()

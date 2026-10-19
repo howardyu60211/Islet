@@ -70,10 +70,14 @@ struct GeneralSettings: View {
 
         Section {
             Toggle(tr("隱藏動態島", "Hide the Island"), isOn: $preferences.islandHidden)
+            Toggle(tr("隱藏選單列圖示", "Hide Menu Bar Icon"), isOn: $preferences.menuBarIconHidden)
         } header: {
             Text(tr("顯示", "Display"))
         } footer: {
-            SettingsFooter(tr("隱藏後也可以從選單列的膠囊圖示再打開。", "You can bring it back from the capsule icon in the menu bar."))
+            SettingsFooter(tr(
+                "隱藏動態島後，可以從選單列的膠囊圖示再打開。隱藏選單列圖示後，點展開後頂部條的齒輪，或從 Finder、Spotlight 再打開一次動態島，就會顯示這個設定視窗。",
+                "After hiding the island, bring it back from the capsule icon in the menu bar. After hiding the menu bar icon, click the gear in the expanded top bar, or open DynamicIsland again from Finder or Spotlight, to get to these settings."
+            ))
         }
     }
 

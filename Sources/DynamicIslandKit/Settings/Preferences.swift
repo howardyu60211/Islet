@@ -23,6 +23,7 @@ final class Preferences {
         static let hoverDelay = "hoverDelay"
         static let hapticFeedback = "hapticFeedback"
         static let islandHidden = "islandHidden"
+        static let menuBarIconHidden = "menuBarIconHidden"
         static let pairActivities = "pairActivities"
         static let musicEnabled = "musicEnabled"
         static let musicCompactEnabled = "musicCompactEnabled"
@@ -56,6 +57,8 @@ final class Preferences {
     var hoverDelay: Double { didSet { save(hoverDelay, Key.hoverDelay) } }
     var hapticFeedback: Bool { didSet { save(hapticFeedback, Key.hapticFeedback) } }
     var islandHidden: Bool { didSet { save(islandHidden, Key.islandHidden) } }
+    /// 不在選單列放膠囊圖示；設定從島的齒輪按鈕或重新打開 App 進入。
+    var menuBarIconHidden: Bool { didSet { save(menuBarIconHidden, Key.menuBarIconHidden) } }
     /// 兩個活動同時進行（音樂＋計時器、音樂＋麥克風…）時左右並排顯示。
     var pairActivities: Bool { didSet { save(pairActivities, Key.pairActivities) } }
 
@@ -97,6 +100,7 @@ final class Preferences {
         hoverDelay = defaults.object(forKey: Key.hoverDelay) as? Double ?? 0.15
         hapticFeedback = defaults.object(forKey: Key.hapticFeedback) as? Bool ?? true
         islandHidden = defaults.object(forKey: Key.islandHidden) as? Bool ?? false
+        menuBarIconHidden = defaults.object(forKey: Key.menuBarIconHidden) as? Bool ?? false
         pairActivities = defaults.object(forKey: Key.pairActivities) as? Bool ?? true
 
         musicEnabled = defaults.object(forKey: Key.musicEnabled) as? Bool ?? true

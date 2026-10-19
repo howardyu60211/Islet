@@ -126,15 +126,19 @@ struct BackgroundAppsSettings: View {
             }
             .onMove { model.move(fromOffsets: $0, toOffset: $1) }
             HStack {
+                Text(tr("\(model.apps.count)／\(BackgroundAppsModel.maxApps) 個", "\(model.apps.count) of \(BackgroundAppsModel.maxApps)"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 addMenu
+                    .disabled(model.isFull)
             }
         } header: {
             Text(tr("App", "Apps"))
         } footer: {
             SettingsFooter(tr(
-                "先在各 App 自己的設定裡關掉選單列圖示（例如 LinearMouse、DockDoor），再加到這裡。點頂部條上的圖示會重新打開該 App，大多會顯示它的設定視窗；右鍵可以結束或移除。可以拖曳調整順序。加入 App 後，頂部條就不再顯示電量。",
-                "First turn off the menu bar icon in each app’s own settings (for example LinearMouse or DockDoor), then add it here. Clicking its icon in the top bar reopens the app, which usually shows its settings window; right-click to quit or remove it. Drag to reorder. Once you add an app, the top bar no longer shows the battery level."
+                "先在各 App 自己的設定裡關掉選單列圖示（例如 LinearMouse、DockDoor），再加到這裡。點頂部條上的圖示會重新打開該 App，大多會顯示它的設定視窗；右鍵可以結束或移除。可以拖曳調整順序，最多 \(BackgroundAppsModel.maxApps) 個。加入 App 後，頂部條就不再顯示電量。",
+                "First turn off the menu bar icon in each app’s own settings (for example LinearMouse or DockDoor), then add it here. Clicking its icon in the top bar reopens the app, which usually shows its settings window; right-click to quit or remove it. Drag to reorder; up to \(BackgroundAppsModel.maxApps) apps. Once you add an app, the top bar no longer shows the battery level."
             ))
         }
     }
@@ -169,6 +173,7 @@ struct BackgroundAppsSettings: View {
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
         panel.prompt = tr("加入", "Add")
         guard panel.runModal() == .OK else { return }
+        // 超過上限的會被 add 擋下來
         panel.urls.forEach { model.add($0) }
     }
 }

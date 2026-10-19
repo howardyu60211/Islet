@@ -13,6 +13,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
+        statusItem.isVisible = !services.preferences.menuBarIconHidden
+    }
+
+    /// 設定裡的「隱藏選單列圖示」。
+    func setIconVisible(_ visible: Bool) {
+        statusItem.isVisible = visible
     }
 
     // 每次打開選單時重建，標題（例如「隱藏／顯示」）才會是最新的。
@@ -24,6 +30,10 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         let hidden = services.preferences.islandHidden
         menu.addItem(item(hidden ? tr("顯示動態島", "Show Island") : tr("隱藏動態島", "Hide Island")) { [weak self] in
             self?.services.toggleIslandHidden()
+        })
+        // 選單是從圖示打開的，所以只會有「隱藏」；要再顯示得到設定裡打開
+        menu.addItem(item(tr("隱藏選單列圖示", "Hide Menu Bar Icon")) { [weak self] in
+            self?.services.preferences.menuBarIconHidden = true
         })
         #if DEBUG
         menu.addItem(.separator())
