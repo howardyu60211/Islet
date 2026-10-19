@@ -4,6 +4,7 @@ import os
 
 /// 麥克風是否有 App 在用（Core Audio 公開 API，不需要權限）。
 /// macOS 14.2 以上可以知道是哪個 App；更舊的系統只看輸入裝置有沒有在跑。
+/// 有些系統版本（例如 macOS 27）不會送出行程「開始／停止輸入」的通知，所以除了監聽也定時查一次。
 @Observable
 final class MicrophoneMonitor {
     private(set) var isActive = false
@@ -16,11 +17,14 @@ final class MicrophoneMonitor {
     @ObservationIgnored private var listListener: AudioObjectPropertyListenerBlock?
     @ObservationIgnored private var objectListeners: [AudioObjectID: AudioObjectPropertyListenerBlock] = [:]
     @ObservationIgnored private var evaluateTask: Task<Void, Never>?
+    @ObservationIgnored private var pollTimer: Timer?
     /// 第一次讀到的狀態不提示（啟動時已經在錄音的不算「開始」）。
     @ObservationIgnored private var isPrimed = false
     @ObservationIgnored private let logger = Logger(subsystem: "com.howardyu.DynamicIsland", category: "Microphone")
 
     private static var system: AudioObjectID { AudioObjectID(kAudioObjectSystemObject) }
+    /// 通知沒來時的備援輪詢間隔（讀二十幾個屬性，很便宜）。
+    private static let pollInterval: TimeInterval = 1
 
     private static var usesProcessList: Bool {
         if #available(macOS 14.2, *) { true } else { false }
@@ -36,10 +40,19 @@ final class MicrophoneMonitor {
         listListener = block
         isPrimed = false
         refreshObjects()
+
+        let timer = Timer(timeInterval: Self.pollInterval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.poll() }
+        }
+        timer.tolerance = 0.3
+        RunLoop.main.add(timer, forMode: .common)
+        pollTimer = timer
     }
 
     func stop() {
         evaluateTask?.cancel()
+        pollTimer?.invalidate()
+        pollTimer = nil
         if let listListener {
             var address = Self.listAddress
             AudioObjectRemovePropertyListenerBlock(Self.system, &address, .main, listListener)
@@ -83,6 +96,15 @@ final class MicrophoneMonitor {
             try? await Task.sleep(for: .milliseconds(500))
             guard !Task.isCancelled else { return }
             self?.evaluate()
+        }
+    }
+
+    /// 狀態跟上次不同時才判斷（一樣經過 scheduleEvaluate 的延遲，短暫開關不會閃一下）。
+    private func poll() {
+        guard isPrimed else { return }
+        let (active, users) = Self.currentState()
+        if active != isActive || users != apps {
+            scheduleEvaluate()
         }
     }
 
@@ -138,7 +160,8 @@ final class MicrophoneMonitor {
     }
 
     private static func currentState() -> (active: Bool, apps: [SensorApp]) {
-        let running = watchedObjects().filter { (value(of: $0, runningAddress) ?? 0) != 0 }
+        // 兩個屬性都是 UInt32；不寫明的話 0 會讓型別推斷成 Int，多讀 4 個沒初始化的位元組
+        let running = watchedObjects().filter { (value(of: $0, runningAddress) as UInt32? ?? 0) != 0 }
         guard #available(macOS 14.2, *) else {
             return (!running.isEmpty, [])
         }
