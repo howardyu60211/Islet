@@ -7,7 +7,10 @@ public enum DynamicIslandApplication {
         #if DEBUG
         let arguments = CommandLine.arguments
         if let index = arguments.firstIndex(of: "--snapshots"), arguments.indices.contains(index + 1) {
-            SnapshotRenderer.renderAll(to: URL(fileURLWithPath: arguments[index + 1]))
+            SnapshotRenderer.renderAll(
+                to: URL(fileURLWithPath: arguments[index + 1]),
+                showsNotchGuide: !arguments.contains("--no-guides")
+            )
             return
         }
         if let index = arguments.firstIndex(of: "--settings-snapshots"), arguments.indices.contains(index + 1) {

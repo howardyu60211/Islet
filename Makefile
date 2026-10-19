@@ -2,7 +2,7 @@ APP_NAME := DynamicIsland
 APP := build/$(APP_NAME).app
 CONFIG ?= release
 
-.PHONY: all app run debug test adapter icon install clean
+.PHONY: all app run debug test adapter icon screenshots install clean
 
 all: app
 
@@ -30,6 +30,10 @@ adapter:
 
 icon:
 	swift scripts/make-icon.swift Resources/AppIcon.icns
+
+# 重新產生 README 用的截圖（docs/images）
+screenshots:
+	./scripts/screenshots.sh
 
 # 安裝到 ~/Applications（開機自動啟動建議用安裝後的版本）
 install: app

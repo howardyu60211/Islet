@@ -3,14 +3,14 @@ import AppKit
 import SwiftUI
 
 /// Debug 用：`DynamicIsland --snapshots <資料夾>` 把每一種狀態畫成 PNG，不用螢幕錄製權限也能檢查外觀。
-/// 紅框是實體瀏海的位置，用來對齊。
+/// 紅框是實體瀏海的位置，用來對齊；加 `--no-guides` 就不畫（給 README 用的截圖）。
 enum SnapshotRenderer {
     struct Scenario {
         let name: String
         let configure: (IslandViewModel) -> Void
     }
 
-    static func renderAll(to directory: URL, extraScenarios: [Scenario] = []) {
+    static func renderAll(to directory: URL, showsNotchGuide: Bool = true, extraScenarios: [Scenario] = []) {
         RenderingContext.isSnapshot = true
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let defaults = UserDefaults(suiteName: "com.howardyu.DynamicIsland.snapshots") ?? .standard
@@ -35,7 +35,7 @@ enum SnapshotRenderer {
                 hasPhysicalNotch: true
             )
             scenario.configure(island)
-            let renderer = ImageRenderer(content: SnapshotBackdrop(island: island))
+            let renderer = ImageRenderer(content: SnapshotBackdrop(island: island, showsNotchGuide: showsNotchGuide))
             renderer.scale = 2
             guard let image = renderer.nsImage,
                   let tiff = image.tiffRepresentation,
@@ -205,6 +205,7 @@ extension SnapshotRenderer {
 /// 假的桌布＋選單列，再把島和瀏海位置疊上去。
 private struct SnapshotBackdrop: View {
     let island: IslandViewModel
+    let showsNotchGuide: Bool
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -217,9 +218,11 @@ private struct SnapshotBackdrop: View {
                 .fill(.white.opacity(0.18))
                 .frame(height: island.notchSize.height)
             IslandRootView(island: island)
-            Rectangle()
-                .stroke(.red.opacity(0.8), lineWidth: 0.5)
-                .frame(width: island.notchSize.width, height: island.notchSize.height)
+            if showsNotchGuide {
+                Rectangle()
+                    .stroke(.red.opacity(0.8), lineWidth: 0.5)
+                    .frame(width: island.notchSize.width, height: island.notchSize.height)
+            }
         }
         .frame(width: NotchWindowController.panelSize.width, height: NotchWindowController.panelSize.height)
     }
