@@ -12,8 +12,8 @@ RAW="$(mktemp -d)"
 trap 'rm -rf "$RAW"' EXIT
 
 echo "▸ swift build (debug)"
-swift build -c debug --product DynamicIsland
-BIN="$(swift build -c debug --show-bin-path)/DynamicIsland"
+swift build -c debug --product Islet
+BIN="$(swift build -c debug --show-bin-path)/Islet"
 
 # crop <快照名稱> <輸出名稱> <高> <寬> <上> <左>（2x 像素；快照原圖是 1440×520，瀏海在正中間）
 crop() {

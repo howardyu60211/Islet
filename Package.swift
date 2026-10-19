@@ -7,24 +7,24 @@ let swiftSettings: [SwiftSetting] = [
 ]
 
 let package = Package(
-    name: "DynamicIsland",
+    name: "Islet",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "DynamicIsland", targets: ["DynamicIsland"]),
+        .executable(name: "Islet", targets: ["Islet"]),
     ],
     targets: [
         .target(
-            name: "DynamicIslandKit",
+            name: "IsletKit",
             swiftSettings: swiftSettings
         ),
         .executableTarget(
-            name: "DynamicIsland",
-            dependencies: ["DynamicIslandKit"],
+            name: "Islet",
+            dependencies: ["IsletKit"],
             swiftSettings: swiftSettings
         ),
         .testTarget(
-            name: "DynamicIslandKitTests",
-            dependencies: ["DynamicIslandKit"],
+            name: "IsletKitTests",
+            dependencies: ["IsletKit"],
             swiftSettings: swiftSettings
         ),
     ]

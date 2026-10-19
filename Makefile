@@ -1,4 +1,4 @@
-APP_NAME := DynamicIsland
+APP_NAME := Islet
 APP := build/$(APP_NAME).app
 CONFIG ?= release
 
@@ -6,7 +6,7 @@ CONFIG ?= release
 
 all: app
 
-# 編譯並組出 build/DynamicIsland.app
+# 編譯並組出 build/Islet.app
 app:
 	CONFIG=$(CONFIG) ./scripts/bundle.sh
 

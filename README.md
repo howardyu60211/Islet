@@ -1,4 +1,4 @@
-# DynamicIsland
+# Islet
 
 **English** ｜ [繁體中文](README.zh-TW.md)
 
@@ -73,7 +73,7 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 make run
 ```
 
-This compiles, assembles `build/DynamicIsland.app` and launches it. Other commands:
+This compiles, assembles `build/Islet.app` and launches it. Other commands:
 
 | Command | Description |
 |---|---|
@@ -84,7 +84,7 @@ This compiles, assembles `build/DynamicIsland.app` and launches it. Other comman
 | `make icon` | Regenerates `Resources/AppIcon.icns` |
 | `make clean` | Deletes build products |
 
-The app has no Dock icon; use the capsule icon in the menu bar to open Settings, temporarily hide the island, or quit. You can also hide the capsule icon from its own menu or in Settings › General › Display; then click the gear in the expanded top bar, or open DynamicIsland again from Finder or Spotlight, to get to Settings.
+The app has no Dock icon; use the capsule icon in the menu bar to open Settings, temporarily hide the island, or quit. You can also hide the capsule icon from its own menu or in Settings › General › Display; then click the gear in the expanded top bar, or open Islet again from Finder or Spotlight, to get to Settings.
 
 ## Permissions on first launch
 
@@ -100,11 +100,11 @@ The app has no Dock icon; use the capsule icon in the menu bar to open Settings,
 Builds are ad-hoc signed by default, so the signature changes on every rebuild and macOS asks for Bluetooth access again. To avoid that, create a self-signed certificate:
 
 1. Open Keychain Access → menu Keychain Access › Certificate Assistant › Create a Certificate…
-2. Name it `DynamicIsland Dev`, set Identity Type to "Self Signed Root" and Certificate Type to "Code Signing", then click Create
+2. Name it `Islet Dev`, set Identity Type to "Self Signed Root" and Certificate Type to "Code Signing", then click Create
 3. Build like this from then on:
 
 ```bash
-SIGN_IDENTITY="DynamicIsland Dev" make run
+SIGN_IDENTITY="Islet Dev" make run
 ```
 
 ## Project structure
@@ -115,24 +115,24 @@ Makefile, scripts/            Build, bundling, signing, app icon, README screens
 Resources/                    Info.plist, app icon, localized app name and permission prompts (*.lproj)
 Vendor/mediaremote-adapter/   System-wide now playing (BSD-3, see Vendor/README.md)
 docs/images/                  README screenshots (en, zh-Hant)
-Sources/DynamicIsland/        Entry point
-Sources/DynamicIslandKit/
+Sources/Islet/                Entry point
+Sources/IsletKit/
   App/        Startup, service wiring, menu bar item
   Window/     Notch panel, notch geometry, mouse tracking
   Island/     State machine (priorities, event queue), shape, collapsed/notification/expanded views
   Features/   NowPlaying, Battery, Timer, Shelf, Bluetooth, Clipboard, Focus, Sensors (microphone/screen recording), System (volume)
   Settings/   Preferences, Settings window, open at login
   Support/    Shared helpers
-Tests/DynamicIslandKitTests/  Unit tests
+Tests/IsletKitTests/          Unit tests
 ```
 
 ## Development notes
 
 - **Command Line Tools only**: in this SDK `@State` is a macro whose implementation ships only with Xcode, so the code uses `@ViewState` (an alias for the `State` property wrapper). `#Preview`, Asset Catalogs and String Catalogs are unavailable too.
 - **Swift Testing**: with only the Command Line Tools, SwiftPM's default build system doesn't load the Testing macro plugin. `make test` adds it for you; plain `swift test` fails to compile.
-- **Snapshots**: after `make debug`, run `.build/debug/DynamicIsland --snapshots <folder>` to render every state as a PNG (the red box marks the physical notch; add `--no-guides` to hide it). No screen recording permission needed. `--settings-snapshots <folder>` renders each Settings page.
+- **Snapshots**: after `make debug`, run `.build/debug/Islet --snapshots <folder>` to render every state as a PNG (the red box marks the physical notch; add `--no-guides` to hide it). No screen recording permission needed. `--settings-snapshots <folder>` renders each Settings page.
 - **Localization**: UI strings are written in both languages side by side, e.g. `tr("充電中", "Charging")` (see `Support/Localization.swift`); the language is decided once at launch. Add `-AppleLanguages "(en)"` to the snapshot commands above to render a specific language.
-- **Logs**: `log stream --predicate 'subsystem == "com.howardyu.DynamicIsland"' --info`
+- **Logs**: `log stream --predicate 'subsystem == "com.howardyu.Islet"' --info`
 
 ## Known limitations
 

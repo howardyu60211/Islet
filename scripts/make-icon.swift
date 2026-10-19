@@ -1,5 +1,5 @@
 // 產生 App 圖示：swift scripts/make-icon.swift Resources/AppIcon.icns
-// 畫一個深色圓角方塊，上方是黑色的動態島（左邊封面、右邊音波）。
+// 畫一個深色圓角方塊，上方是黑色的小島（左邊封面、右邊音波）。
 import AppKit
 
 let output = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "Resources/AppIcon.icns"
@@ -32,7 +32,7 @@ func drawIcon(in size: CGFloat) {
     NSGradient(colors: [NSColor.white.withAlphaComponent(0.22), NSColor.white.withAlphaComponent(0)])?
         .draw(in: NSBezierPath(ovalIn: body.insetBy(dx: -120 * unit, dy: 260 * unit).offsetBy(dx: 0, dy: 300 * unit)), relativeCenterPosition: .zero)
 
-    // 動態島
+    // 小島
     let island = NSRect(x: 232 * unit, y: 600 * unit, width: 560 * unit, height: 168 * unit)
     NSColor.black.setFill()
     NSBezierPath(roundedRect: island, xRadius: 84 * unit, yRadius: 84 * unit).fill()

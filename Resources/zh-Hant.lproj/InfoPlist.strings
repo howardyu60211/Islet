@@ -1,4 +1,4 @@
 /* App 名稱與權限說明（繁體中文） */
-"CFBundleDisplayName" = "動態島";
-"NSBluetoothAlwaysUsageDescription" = "動態島會在藍牙耳機連線或中斷時顯示提示。";
-"NSAppleEventsUsageDescription" = "動態島需要讀取並控制 Music 或 Spotify 的播放狀態。";
+"CFBundleDisplayName" = "Islet";
+"NSBluetoothAlwaysUsageDescription" = "Islet 會在藍牙耳機連線或中斷時顯示提示。";
+"NSAppleEventsUsageDescription" = "Islet 需要讀取並控制 Music 或 Spotify 的播放狀態。";

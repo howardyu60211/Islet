@@ -1,8 +1,8 @@
 #!/bin/zsh
-# 組出 build/DynamicIsland.app：編譯 Swift、放入 Info.plist／圖示／MediaRemoteAdapter，最後簽章。
+# 組出 build/Islet.app：編譯 Swift、放入 Info.plist／圖示／MediaRemoteAdapter，最後簽章。
 #
 #   CONFIG=debug ./scripts/bundle.sh               # Debug 建置（含「模擬事件」選單）
-#   SIGN_IDENTITY="DynamicIsland Dev" ./scripts/bundle.sh   # 用自簽憑證簽章，權限不會每次重問
+#   SIGN_IDENTITY="Islet Dev" ./scripts/bundle.sh   # 用自簽憑證簽章，權限不會每次重問
 set -euo pipefail
 
 ROOT="${0:A:h:h}"
@@ -10,7 +10,7 @@ cd "$ROOT"
 
 CONFIG="${CONFIG:-release}"
 SIGN_IDENTITY="${SIGN_IDENTITY:--}"
-APP_NAME="DynamicIsland"
+APP_NAME="Islet"
 APP="build/$APP_NAME.app"
 CONTENTS="$APP/Contents"
 

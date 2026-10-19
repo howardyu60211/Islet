@@ -1,3 +1,0 @@
-import DynamicIslandKit
-
-DynamicIslandApplication.run()

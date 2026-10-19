@@ -4,21 +4,21 @@
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:dynamicIsand}",
-            "name": "Debug DynamicIsland",
-            "target": "DynamicIsland",
+            "cwd": "${workspaceFolder}",
+            "name": "Debug Islet",
+            "target": "Islet",
             "configuration": "debug",
-            "preLaunchTask": "swift: Build Debug DynamicIsland"
+            "preLaunchTask": "swift: Build Debug Islet"
         },
         {
             "type": "swift",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:dynamicIsand}",
-            "name": "Release DynamicIsland",
-            "target": "DynamicIsland",
+            "cwd": "${workspaceFolder}",
+            "name": "Release Islet",
+            "target": "Islet",
             "configuration": "release",
-            "preLaunchTask": "swift: Build Release DynamicIsland"
+            "preLaunchTask": "swift: Build Release Islet"
         }
     ]
 }

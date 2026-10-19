@@ -1,0 +1,3 @@
+import IsletKit
+
+IsletApplication.run()

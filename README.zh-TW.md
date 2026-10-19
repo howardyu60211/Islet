@@ -1,4 +1,4 @@
-# 動態島（DynamicIsland）
+# Islet
 
 [English](README.md) ｜ **繁體中文**
 
@@ -71,7 +71,7 @@
 make run
 ```
 
-會編譯、組出 `build/DynamicIsland.app` 並啟動。其他指令：
+會編譯、組出 `build/Islet.app` 並啟動。其他指令：
 
 | 指令 | 說明 |
 |---|---|
@@ -82,7 +82,7 @@ make run
 | `make icon` | 重新產生 `Resources/AppIcon.icns` |
 | `make clean` | 刪掉建置產物 |
 
-App 沒有 Dock 圖示；從選單列的膠囊圖示可以打開設定、暫時隱藏動態島或結束。膠囊圖示也可以從它自己的選單或設定「一般 › 顯示」關掉，之後點展開後頂部條的齒輪，或從 Finder、Spotlight 再打開一次動態島，就會顯示設定。
+App 沒有 Dock 圖示；從選單列的膠囊圖示可以打開設定、暫時隱藏小島或結束。膠囊圖示也可以從它自己的選單或設定「一般 › 顯示」關掉，之後點展開後頂部條的齒輪，或從 Finder、Spotlight 再打開一次 Islet，就會顯示設定。
 
 ## 第一次執行時的權限
 
@@ -98,11 +98,11 @@ App 沒有 Dock 圖示；從選單列的膠囊圖示可以打開設定、暫時�
 預設用 ad-hoc 簽章，每次重新建置簽章都會變，macOS 就會再問一次藍牙權限。可以建立一個自簽憑證：
 
 1. 打開「鑰匙圈存取」→ 選單「鑰匙圈存取 › 憑證輔助程式 › 製作憑證…」
-2. 名稱填 `DynamicIsland Dev`，身分類型選「自簽根憑證」，憑證類型選「程式碼簽署」，按「製作」
+2. 名稱填 `Islet Dev`，身分類型選「自簽根憑證」，憑證類型選「程式碼簽署」，按「製作」
 3. 之後這樣建置：
 
 ```bash
-SIGN_IDENTITY="DynamicIsland Dev" make run
+SIGN_IDENTITY="Islet Dev" make run
 ```
 
 ## 專案結構
@@ -113,24 +113,24 @@ Makefile, scripts/            建置、打包、簽章、App 圖示、README 截
 Resources/                    Info.plist、App 圖示、各語言的 App 名稱與權限說明（*.lproj）
 Vendor/mediaremote-adapter/   全系統「正在播放」（BSD-3，見 Vendor/README.md）
 docs/images/                  README 截圖（en、zh-Hant）
-Sources/DynamicIsland/        進入點
-Sources/DynamicIslandKit/
+Sources/Islet/                進入點
+Sources/IsletKit/
   App/        啟動、服務組裝、選單列
   Window/     瀏海面板、瀏海位置計算、滑鼠追蹤
   Island/     狀態機（優先序、事件排隊）、形狀、收合／通知／展開畫面
   Features/   NowPlaying、Battery、Timer、Shelf、Bluetooth、Clipboard、Focus、Sensors（麥克風／螢幕錄影）、System（音量）
   Settings/   設定值、設定視窗、登入時開啟
   Support/    共用小工具
-Tests/DynamicIslandKitTests/  單元測試
+Tests/IsletKitTests/          單元測試
 ```
 
 ## 開發筆記
 
 - **只有 Command Line Tools 時的限制**：這版 SDK 的 `@State` 是 macro，它的實作只跟著 Xcode 發佈，所以程式碼用 `@ViewState`（`State` property wrapper 的別名）。`#Preview`、Asset Catalog、String Catalog 也不能用。
 - **Swift Testing**：SwiftPM 的預設建置系統在只有 Command Line Tools 時不會載入 Testing 的 macro plugin，`make test` 會自動補上；直接用 `swift test` 會編譯失敗。
-- **外觀快照**：`make debug` 之後執行 `.build/debug/DynamicIsland --snapshots <資料夾>`，會把每一種狀態畫成 PNG（紅框是實體瀏海的位置，加 `--no-guides` 就不畫），不需要螢幕錄製權限。`--settings-snapshots <資料夾>` 則是設定視窗的每一頁。
+- **外觀快照**：`make debug` 之後執行 `.build/debug/Islet --snapshots <資料夾>`，會把每一種狀態畫成 PNG（紅框是實體瀏海的位置，加 `--no-guides` 就不畫），不需要螢幕錄製權限。`--settings-snapshots <資料夾>` 則是設定視窗的每一頁。
 - **在地化**：介面字串把兩種語言寫在一起，例如 `tr("充電中", "Charging")`（見 `Support/Localization.swift`），語言在啟動時決定一次。上面的快照指令加上 `-AppleLanguages "(en)"` 就能畫指定的語言。
-- **紀錄**：`log stream --predicate 'subsystem == "com.howardyu.DynamicIsland"' --info`
+- **紀錄**：`log stream --predicate 'subsystem == "com.howardyu.Islet"' --info`
 
 ## 已知限制
 
