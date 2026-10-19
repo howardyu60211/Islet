@@ -34,7 +34,7 @@ final class BackgroundAppsModel {
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let resolveURL: (String) -> URL?
     @ObservationIgnored private let runningBundleIdentifiers: () -> Set<String>
-    @ObservationIgnored private var observers: [NSObjectProtocol] = []
+    @ObservationIgnored private var runningObservation: NSKeyValueObservation?
     @ObservationIgnored private var icons: [URL: NSImage] = [:]
 
     init(
@@ -55,20 +55,18 @@ final class BackgroundAppsModel {
     }
 
     /// 開始跟著 App 啟動／結束更新執行狀態。
+    /// NSWorkspace 的啟動／結束通知不會送給沒有 Dock 圖示的 App（選單列 App 幾乎都是），所以用 KVO 觀察 runningApplications。
     func start() {
-        guard observers.isEmpty else { return }
-        let center = NSWorkspace.shared.notificationCenter
-        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.refreshRunning() }
-            })
+        guard runningObservation == nil else { return }
+        runningObservation = NSWorkspace.shared.observe(\.runningApplications) { [weak self] _, _ in
+            Task { @MainActor in self?.refreshRunning() }
         }
         refreshRunning()
     }
 
     func stop() {
-        observers.forEach(NSWorkspace.shared.notificationCenter.removeObserver)
-        observers.removeAll()
+        runningObservation?.invalidate()
+        runningObservation = nil
     }
 
     func isRunning(_ app: App) -> Bool {
