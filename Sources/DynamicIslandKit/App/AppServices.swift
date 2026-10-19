@@ -1,0 +1,218 @@
+import AppKit
+
+/// 把所有服務組在一起，負責啟動與停止。
+final class AppServices {
+    let preferences = Preferences()
+    let battery = BatteryMonitor()
+    let nowPlaying = NowPlayingModel()
+    let timer: TimerModel
+    let shelf = ShelfModel()
+    let bluetooth = BluetoothMonitor()
+    let volume = VolumeMonitor()
+    let focus = FocusMonitor()
+    let microphone = MicrophoneMonitor()
+    let screenRecording = ScreenRecordingMonitor()
+    let clipboard = ClipboardModel()
+    let timerAlert: TimerAlert
+    let island: IslandViewModel
+    let windowController: NotchWindowController
+    let settingsWindow: SettingsWindowController
+    private var statusMenu: StatusMenuController?
+
+    init() {
+        timer = TimerModel(preferences: preferences)
+        timerAlert = TimerAlert(nowPlaying: nowPlaying)
+        island = IslandViewModel(
+            preferences: preferences,
+            battery: battery,
+            nowPlaying: nowPlaying,
+            timer: timer,
+            shelf: shelf,
+            clipboard: clipboard,
+            microphone: microphone,
+            screenRecording: screenRecording
+        )
+        windowController = NotchWindowController(island: island, preferences: preferences)
+        settingsWindow = SettingsWindowController(preferences: preferences, nowPlaying: nowPlaying, focus: focus, shelf: shelf, clipboard: clipboard)
+    }
+
+    func start() {
+        island.openSettings = { [weak self] in
+            self?.showSettings()
+        }
+        preferences.onChange = { [weak self] key in
+            self?.preferenceChanged(key)
+        }
+        statusMenu = StatusMenuController(services: self)
+        windowController.start()
+
+        battery.onEvent = { [weak self] kind in
+            guard let self, self.preferences.batteryAlertsEnabled else { return }
+            self.island.post(IslandEvent(kind: kind))
+        }
+        battery.start()
+
+        if preferences.musicEnabled {
+            nowPlaying.start()
+        }
+
+        timer.onFinished = { [weak self] kind in
+            guard let self, self.preferences.timerEnabled else { return }
+            self.timerAlert.play(sound: self.preferences.timerSound, pausingMusic: self.preferences.timerPausesMusic)
+            self.island.post(IslandEvent(kind: kind))
+        }
+
+        bluetooth.onEvent = { [weak self] kind in
+            guard let self, self.preferences.bluetoothAlertsEnabled else { return }
+            self.island.post(IslandEvent(kind: kind))
+        }
+        if preferences.bluetoothAlertsEnabled {
+            bluetooth.start()
+        }
+
+        volume.onChange = { [weak self] level, muted in
+            self?.island.post(IslandEvent(kind: .volume(level: level, muted: muted)))
+        }
+        focus.onChange = { [weak self] mode, active in
+            self?.island.post(IslandEvent(kind: .focus(mode, active: active)))
+        }
+        microphone.onChange = { [weak self] active, app in
+            self?.island.post(IslandEvent(kind: .sensor(.microphone, app: app, active: active)))
+        }
+        screenRecording.onChange = { [weak self] active in
+            self?.island.post(IslandEvent(kind: .sensor(.screenRecording, app: nil, active: active)))
+        }
+        clipboard.onCapture = { [weak self] item in
+            guard let self, self.preferences.clipboardAlertsEnabled else { return }
+            self.island.post(IslandEvent(kind: .clipboard(item.summary)))
+        }
+        for key in Self.monitorKeys {
+            preferenceChanged(key)
+        }
+    }
+
+    func stop() {
+        battery.stop()
+        bluetooth.stop()
+        volume.stop()
+        focus.stop()
+        microphone.stop()
+        screenRecording.stop()
+        clipboard.stop()
+        nowPlaying.stop()
+        windowController.stop()
+    }
+
+    func showSettings() {
+        island.collapse()
+        settingsWindow.show()
+    }
+
+    func toggleIslandHidden() {
+        preferences.islandHidden.toggle()
+    }
+
+    /// 開關跟著設定走的監聽器（啟動時也用 preferenceChanged 依目前的設定開啟）。
+    private static let monitorKeys = [
+        Preferences.Key.volumeAlertsEnabled,
+        Preferences.Key.focusAlertsEnabled,
+        Preferences.Key.microphoneIndicatorEnabled,
+        Preferences.Key.screenRecordingIndicatorEnabled,
+        Preferences.Key.clipboardEnabled,
+    ]
+
+    /// 設定變更時開關對應的功能。
+    private func preferenceChanged(_ key: String) {
+        switch key {
+        case Preferences.Key.islandHidden:
+            windowController.updatePlacement()
+        case Preferences.Key.musicEnabled:
+            if preferences.musicEnabled {
+                nowPlaying.start()
+            } else {
+                nowPlaying.stop()
+            }
+        case Preferences.Key.bluetoothAlertsEnabled:
+            if preferences.bluetoothAlertsEnabled {
+                bluetooth.start()
+            } else {
+                bluetooth.stop()
+            }
+        case Preferences.Key.volumeAlertsEnabled:
+            preferences.volumeAlertsEnabled ? volume.start() : volume.stop()
+        case Preferences.Key.focusAlertsEnabled:
+            preferences.focusAlertsEnabled ? focus.start() : focus.stop()
+        case Preferences.Key.microphoneIndicatorEnabled:
+            preferences.microphoneIndicatorEnabled ? microphone.start() : microphone.stop()
+        case Preferences.Key.screenRecordingIndicatorEnabled:
+            preferences.screenRecordingIndicatorEnabled ? screenRecording.start() : screenRecording.stop()
+        case Preferences.Key.clipboardEnabled:
+            preferences.clipboardEnabled ? clipboard.start() : clipboard.stop()
+        case Preferences.Key.timerEnabled:
+            if !preferences.timerEnabled {
+                timer.reset()
+            }
+        case Preferences.Key.focusMinutes, Preferences.Key.shortBreakMinutes, Preferences.Key.longBreakMinutes, Preferences.Key.pomodoroRounds:
+            timer.preferencesChanged()
+        default:
+            break
+        }
+    }
+}
+
+#if DEBUG
+/// Debug 建置的「模擬事件」選單項目，不用實機也能看每一種狀態。
+struct DebugSimulation {
+    let title: String
+    let run: () -> Void
+}
+
+extension AppServices {
+    func debugSimulations() -> [DebugSimulation] {
+        let island = island
+        let nowPlaying = nowPlaying
+        let airPods = BluetoothDeviceSnapshot(
+            name: "AirPods Pro",
+            address: "00:00:00:00:00:01",
+            symbolName: "airpods.pro",
+            battery: HeadphoneBattery(left: 82, right: 79, caseLevel: 45)
+        )
+        return [
+            DebugSimulation(title: "插上電源") { island.post(IslandEvent(kind: .charging(level: 76))) },
+            DebugSimulation(title: "拔掉電源") { island.post(IslandEvent(kind: .unplugged(level: 76))) },
+            DebugSimulation(title: "充飽電") { island.post(IslandEvent(kind: .fullyCharged)) },
+            DebugSimulation(title: "低電量 10%") { island.post(IslandEvent(kind: .lowBattery(level: 10))) },
+            DebugSimulation(title: "AirPods 連線") { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: true))) },
+            DebugSimulation(title: "AirPods 中斷") { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: false))) },
+            DebugSimulation(title: "計時結束") {
+                island.post(IslandEvent(kind: .timerFinished(title: "專注時間結束", subtitle: "休息 5 分鐘吧")))
+            },
+            DebugSimulation(title: "假的正在播放") { nowPlaying.apply(.debugSample) },
+            DebugSimulation(title: "計時結束（含提示音）") { [self] in
+                timerAlert.play(sound: preferences.timerSound, pausingMusic: preferences.timerPausesMusic)
+                island.post(IslandEvent(kind: .timerFinished(title: "時間到！", subtitle: "1 分鐘計時結束")))
+            },
+            DebugSimulation(title: "音量 60%") { island.post(IslandEvent(kind: .volume(level: 60, muted: false))) },
+            DebugSimulation(title: "靜音") { island.post(IslandEvent(kind: .volume(level: 60, muted: true))) },
+            DebugSimulation(title: "專注模式開啟") { island.post(IslandEvent(kind: .focus(.debugSample, active: true))) },
+            DebugSimulation(title: "專注模式關閉") { island.post(IslandEvent(kind: .focus(.debugSample, active: false))) },
+            DebugSimulation(title: "麥克風使用中") { [microphone] in
+                microphone.debugSetActive(true, apps: [.debugSample])
+                island.post(IslandEvent(kind: .sensor(.microphone, app: .debugSample, active: true)))
+            },
+            DebugSimulation(title: "麥克風停止") { [microphone] in
+                microphone.debugSetActive(false, apps: [])
+                island.post(IslandEvent(kind: .sensor(.microphone, app: .debugSample, active: false)))
+            },
+            DebugSimulation(title: "螢幕錄影開始") { island.post(IslandEvent(kind: .sensor(.screenRecording, app: nil, active: true))) },
+            DebugSimulation(title: "拷貝文字") {
+                island.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: "會議改到週四下午三點", image: nil))))
+            },
+            DebugSimulation(title: "開始 1 分鐘計時") { [timer] in
+                timer.setCountdown(minutes: 1)
+                timer.start()
+            },
+        ]
+    }
+}
+#endif
