@@ -13,6 +13,7 @@ final class AppServices {
     let microphone = MicrophoneMonitor()
     let screenRecording = ScreenRecordingMonitor()
     let clipboard = ClipboardModel()
+    let backgroundApps = BackgroundAppsModel()
     let timerAlert: TimerAlert
     let island: IslandViewModel
     let windowController: NotchWindowController
@@ -30,10 +31,18 @@ final class AppServices {
             shelf: shelf,
             clipboard: clipboard,
             microphone: microphone,
-            screenRecording: screenRecording
+            screenRecording: screenRecording,
+            backgroundApps: backgroundApps
         )
         windowController = NotchWindowController(island: island, preferences: preferences)
-        settingsWindow = SettingsWindowController(preferences: preferences, nowPlaying: nowPlaying, focus: focus, shelf: shelf, clipboard: clipboard)
+        settingsWindow = SettingsWindowController(
+            preferences: preferences,
+            nowPlaying: nowPlaying,
+            focus: focus,
+            shelf: shelf,
+            clipboard: clipboard,
+            backgroundApps: backgroundApps
+        )
     }
 
     func start() {
@@ -51,6 +60,7 @@ final class AppServices {
             self.island.post(IslandEvent(kind: kind))
         }
         battery.start()
+        backgroundApps.start()
 
         if preferences.musicEnabled {
             nowPlaying.start()
@@ -99,6 +109,7 @@ final class AppServices {
         microphone.stop()
         screenRecording.stop()
         clipboard.stop()
+        backgroundApps.stop()
         nowPlaying.stop()
         windowController.stop()
     }

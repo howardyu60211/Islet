@@ -14,6 +14,7 @@ final class IslandViewModel {
     let clipboard: ClipboardModel
     let microphone: MicrophoneMonitor
     let screenRecording: ScreenRecordingMonitor
+    let backgroundApps: BackgroundAppsModel
     @ObservationIgnored private let logger = Logger(subsystem: "com.howardyu.DynamicIsland", category: "Island")
 
     /// 內建螢幕的瀏海；沒有內建螢幕時為 nil（面板隱藏）。
@@ -56,7 +57,8 @@ final class IslandViewModel {
         shelf: ShelfModel,
         clipboard: ClipboardModel,
         microphone: MicrophoneMonitor = MicrophoneMonitor(),
-        screenRecording: ScreenRecordingMonitor = ScreenRecordingMonitor()
+        screenRecording: ScreenRecordingMonitor = ScreenRecordingMonitor(),
+        backgroundApps: BackgroundAppsModel = BackgroundAppsModel()
     ) {
         self.preferences = preferences
         self.battery = battery
@@ -66,6 +68,7 @@ final class IslandViewModel {
         self.clipboard = clipboard
         self.microphone = microphone
         self.screenRecording = screenRecording
+        self.backgroundApps = backgroundApps
         observeMenuTracking()
     }
 

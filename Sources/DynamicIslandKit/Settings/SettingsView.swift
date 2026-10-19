@@ -8,6 +8,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
     case shelf
     case clipboard
     case clock
+    case backgroundApps
     case about
 
     var id: Self { self }
@@ -20,6 +21,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .shelf: tr("檔案櫃", "Shelf")
         case .clipboard: tr("剪貼簿", "Clipboard")
         case .clock: tr("時鐘", "Clock")
+        case .backgroundApps: tr("背景程式", "App Tray")
         case .about: tr("關於", "About")
         }
     }
@@ -32,6 +34,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .shelf: "tray.full.fill"
         case .clipboard: "doc.on.clipboard.fill"
         case .clock: "timer"
+        case .backgroundApps: "menubar.rectangle"
         case .about: "info.circle.fill"
         }
     }
@@ -44,6 +47,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .shelf: .blue
         case .clipboard: .orange
         case .clock: .green
+        case .backgroundApps: .indigo
         case .about: .gray
         }
     }
@@ -56,6 +60,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .shelf: tr("把檔案拖到瀏海暫放，之後再拖出、打開或用 AirDrop 傳送。", "Drop files on the notch to hold them, then drag them out, open them or AirDrop them later.")
         case .clipboard: tr("記錄最近拷貝的文字、連結、圖片與檔案，點一下就能再拷貝。", "Keeps recently copied text, links, images and files; click one to copy it again.")
         case .clock: tr("計時器與番茄鐘，時間到時在瀏海提示並播放提示音。", "A timer and Pomodoro that alert you in the notch with a sound when time’s up.")
+        case .backgroundApps: tr("把關掉選單列圖示的 App 收在展開後的頂部條，看得到有沒有在執行，點一下就能打開設定。", "Keeps apps whose menu bar icons you’ve turned off in the expanded top bar, so you can see they’re running and open their settings with a click.")
         case .about: tr("版本與授權資訊。", "Version and license information.")
         }
     }
@@ -67,15 +72,25 @@ struct SettingsView: View {
     let focus: FocusMonitor
     let shelf: ShelfModel
     let clipboard: ClipboardModel
+    let backgroundApps: BackgroundAppsModel
 
     @ViewState private var selection: SettingsPane?
 
-    init(preferences: Preferences, nowPlaying: NowPlayingModel, focus: FocusMonitor, shelf: ShelfModel, clipboard: ClipboardModel, initialPane: SettingsPane = .general) {
+    init(
+        preferences: Preferences,
+        nowPlaying: NowPlayingModel,
+        focus: FocusMonitor,
+        shelf: ShelfModel,
+        clipboard: ClipboardModel,
+        backgroundApps: BackgroundAppsModel,
+        initialPane: SettingsPane = .general
+    ) {
         self.preferences = preferences
         self.nowPlaying = nowPlaying
         self.focus = focus
         self.shelf = shelf
         self.clipboard = clipboard
+        self.backgroundApps = backgroundApps
         _selection = ViewState(initialValue: initialPane)
     }
 
@@ -112,6 +127,7 @@ struct SettingsView: View {
         case .shelf: ShelfSettings(preferences: preferences, shelf: shelf)
         case .clipboard: ClipboardSettings(preferences: preferences, clipboard: clipboard)
         case .clock: ClockSettings(preferences: preferences)
+        case .backgroundApps: BackgroundAppsSettings(model: backgroundApps)
         case .about: AboutSettings()
         }
     }

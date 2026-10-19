@@ -34,6 +34,7 @@
 |---|---|
 | <img src="docs/images/zh-Hant/expanded-shelf.png" width="420" alt="檔案暫存架"><br>檔案暫存架 | <img src="docs/images/zh-Hant/expanded-timer.png" width="420" alt="番茄鐘"><br>番茄鐘 |
 | <img src="docs/images/zh-Hant/expanded-clipboard.png" width="420" alt="剪貼簿紀錄"><br>剪貼簿紀錄 | <img src="docs/images/zh-Hant/settings-general.png" width="300" alt="設定"><br>設定 |
+| <img src="docs/images/zh-Hant/app-tray.png" width="420" alt="頂部條的背景程式"><br>頂部條的背景程式（彩色的是執行中） | <img src="docs/images/zh-Hant/settings-backgroundApps.png" width="300" alt="背景程式設定"><br>背景程式設定 |
 
 截圖是用 `make screenshots` 從程式產生的（假的桌布與歌曲），不是螢幕錄影。
 
@@ -42,7 +43,8 @@
 | 功能 | 收合時 | 展開後 |
 |---|---|---|
 | 音樂播放 | 瀏海左邊是封面、右邊是音波；觸控板在島上左右滑可以切歌 | 封面、歌名、可拖曳的進度條、倒轉／快轉 15 秒、上一首／播放／下一首、切換輸出裝置；播放器支援時多出隨機與重複；點封面打開播放的 App |
-| 充電與電量 | 插電時顯示「充電中」與電量；低電量（20%、10%）與充飽電各提示一次 | 頂部條顯示電量 |
+| 充電與電量 | 插電時顯示「充電中」與電量；低電量（20%、10%）與充飽電各提示一次 | 沒有加背景程式時，頂部條顯示電量 |
+| 背景程式 | — | 把選單列圖示關掉的 App（DockDoor、LinearMouse…）收在頂部條右側：彩色的是執行中、灰色的是沒在執行；點一下重新打開它（大多會顯示設定視窗），右鍵可以打開設定、啟動、結束或移除 |
 | 檔案暫存架 | 把檔案拖到瀏海就會展開 | 放到暫存架或 AirDrop；項目可拖出、雙擊開啟、右鍵選單 |
 | 計時器／番茄鐘 | 顯示進度環與剩餘時間 | 預設時間（1／10／30／60／90／120 分）、番茄鐘的專注／休息時間與輪數、開始／暫停／重設／跳過 |
 | 藍牙耳機 | 連線／中斷時跳出提示，AirPods 顯示左右耳與充電盒電量 | — |

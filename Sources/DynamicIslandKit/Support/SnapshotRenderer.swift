@@ -27,7 +27,15 @@ enum SnapshotRenderer {
             let shelf = ShelfModel(defaults: defaults)
             shelf.removeAll()
             let clipboard = ClipboardModel(pasteboard: NSPasteboard(name: NSPasteboard.Name("com.howardyu.DynamicIsland.snapshots")))
-            let island = IslandViewModel(preferences: preferences, battery: battery, nowPlaying: nowPlaying, timer: timer, shelf: shelf, clipboard: clipboard)
+            let island = IslandViewModel(
+                preferences: preferences,
+                battery: battery,
+                nowPlaying: nowPlaying,
+                timer: timer,
+                shelf: shelf,
+                clipboard: clipboard,
+                backgroundApps: sampleBackgroundApps(defaults: defaults, filled: false)
+            )
             island.geometry = NotchGeometry(
                 notchSize: CGSize(width: 179, height: 32),
                 screenFrame: CGRect(x: 0, y: 0, width: 1470, height: 956),
@@ -63,6 +71,7 @@ enum SnapshotRenderer {
                 focus: FocusMonitor(),
                 shelf: ShelfModel(defaults: defaults),
                 clipboard: clipboard,
+                backgroundApps: sampleBackgroundApps(defaults: defaults, filled: true),
                 initialPane: pane
             )
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))
@@ -172,6 +181,10 @@ enum SnapshotRenderer {
             Scenario(name: "16b-compact-pair-music-microphone") { island in
                 island.microphone.debugSetActive(true, apps: [.debugSample])
             },
+            Scenario(name: "17-expanded-background-apps") { island in
+                fillBackgroundApps(island.backgroundApps)
+                island.expand(tab: .media)
+            },
             Scenario(name: "16c-compact-pair-timer-microphone") { island in
                 island.nowPlaying.apply(nil)
                 island.microphone.debugSetActive(true, apps: [.debugSample])
@@ -183,6 +196,20 @@ enum SnapshotRenderer {
 }
 
 extension SnapshotRenderer {
+    /// 背景程式快照用系統內建的 App 當範例；Calculator 與 Stickies 假裝在執行。
+    static func sampleBackgroundApps(defaults: UserDefaults, filled: Bool) -> BackgroundAppsModel {
+        defaults.removeObject(forKey: BackgroundAppsModel.defaultsKey)
+        let model = BackgroundAppsModel(defaults: defaults, runningBundleIdentifiers: { ["com.apple.calculator", "com.apple.Stickies"] })
+        if filled { fillBackgroundApps(model) }
+        return model
+    }
+
+    static func fillBackgroundApps(_ model: BackgroundAppsModel) {
+        for name in ["Calculator", "Stickies", "Chess"] {
+            model.add(URL(fileURLWithPath: "/System/Applications/\(name).app"))
+        }
+    }
+
     /// 剪貼簿快照用的假紀錄（最新的在前面）。
     static func fillClipboard(_ island: IslandViewModel) {
         let samples: [(String, String?, String?)] = [

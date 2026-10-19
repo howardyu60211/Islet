@@ -36,6 +36,7 @@ Ongoing activities sit on either side of the notch; when two run at once, each g
 |---|---|
 | <img src="docs/images/en/expanded-shelf.png" width="420" alt="File shelf"><br>File shelf | <img src="docs/images/en/expanded-timer.png" width="420" alt="Pomodoro"><br>Pomodoro |
 | <img src="docs/images/en/expanded-clipboard.png" width="420" alt="Clipboard history"><br>Clipboard history | <img src="docs/images/en/settings-general.png" width="300" alt="Settings"><br>Settings |
+| <img src="docs/images/en/app-tray.png" width="420" alt="App tray in the top bar"><br>App tray in the top bar (color = running) | <img src="docs/images/en/settings-backgroundApps.png" width="300" alt="App tray settings"><br>App tray settings |
 
 The screenshots are rendered by the app itself with `make screenshots` (fake wallpaper and song), not screen recordings.
 
@@ -44,7 +45,8 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 | Feature | Collapsed | Expanded |
 |---|---|---|
 | Now playing | Artwork on the left of the notch, a waveform on the right; swipe left/right on the island with the trackpad to change tracks | Artwork, title, a draggable progress bar, skip back/forward 15 s, previous/play/next, output device picker; shuffle and repeat when the player supports them; click the artwork to open the playing app |
-| Charging & battery | Shows "Charging" and the level when plugged in; alerts once each at low battery (20 %, 10 %) and when fully charged | Battery level in the top bar |
+| Charging & battery | Shows "Charging" and the level when plugged in; alerts once each at low battery (20 %, 10 %) and when fully charged | Battery level in the top bar (when the app tray is empty) |
+| App tray | — | Apps whose menu bar icons you've turned off (DockDoor, LinearMouse…) sit on the right of the top bar: in color when running, gray when not. Click one to reopen it (usually shows its settings window); right-click to open settings, launch, quit or remove it |
 | File shelf | Drag files onto the notch to expand it | Drop onto the shelf or AirDrop; drag items back out, double-click to open, right-click for a menu |
 | Timer / Pomodoro | Progress ring and time remaining | Presets (1/10/30/60/90/120 min), Pomodoro focus/break lengths and rounds, start/pause/reset/skip |
 | Bluetooth headphones | Alert on connect/disconnect; AirPods show left, right and case battery | — |

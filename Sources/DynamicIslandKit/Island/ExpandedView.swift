@@ -42,7 +42,7 @@ struct ExpandedView: View {
     }
 }
 
-/// 頂部條：瀏海左邊是分頁，右邊是電量、設定與結束；中間留給實體瀏海。
+/// 頂部條：瀏海左邊是分頁，右邊是背景程式（沒加任何 App 時是電量）、設定與結束；中間留給實體瀏海。
 private struct ExpandedHeader: View {
     let island: IslandViewModel
 
@@ -65,7 +65,12 @@ private struct ExpandedHeader: View {
 
             HStack(spacing: 10) {
                 SensorIndicators(island: island)
-                BatteryIndicator(battery: island.battery)
+                if island.backgroundApps.apps.isEmpty {
+                    BatteryIndicator(battery: island.battery)
+                } else {
+                    // 有麥克風／螢幕錄影指示時位置比較少
+                    BackgroundAppsTray(island: island, maxVisible: island.activeSensors.isEmpty ? 5 : 3)
+                }
                 HeaderIconButton(symbol: "gearshape.fill", label: tr("設定", "Settings")) {
                     island.openSettings()
                 }

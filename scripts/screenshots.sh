@@ -37,6 +37,7 @@ for language in en zh-Hant; do
   expanded 07-expanded-shelf              expanded-shelf
   expanded 08-expanded-timer              expanded-timer
   expanded 14c-expanded-clipboard-wheel   expanded-clipboard
+  crop 17-expanded-background-apps app-tray 90 1320 0 60
 
   compact 09-compact-now-playing          compact-now-playing
   compact 16-compact-pair-music-timer     compact-music-timer
@@ -50,6 +51,8 @@ for language in en zh-Hant; do
   banner 05-banner-timer                  banner-timer
   banner 04-banner-low-battery            banner-low-battery
 
-  cp "$RAW/settings-general.png" "$OUT/settings-general.png"
-  echo "✓ $OUT/settings-general.png"
+  for pane in general backgroundApps; do
+    cp "$RAW/settings-$pane.png" "$OUT/settings-$pane.png"
+    echo "✓ $OUT/settings-$pane.png"
+  done
 done

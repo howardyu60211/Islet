@@ -8,15 +8,17 @@ final class SettingsWindowController {
     private let focus: FocusMonitor
     private let shelf: ShelfModel
     private let clipboard: ClipboardModel
+    private let backgroundApps: BackgroundAppsModel
     private var window: NSWindow?
     private var hairlineFix: HairlineBorderFix?
 
-    init(preferences: Preferences, nowPlaying: NowPlayingModel, focus: FocusMonitor, shelf: ShelfModel, clipboard: ClipboardModel) {
+    init(preferences: Preferences, nowPlaying: NowPlayingModel, focus: FocusMonitor, shelf: ShelfModel, clipboard: ClipboardModel, backgroundApps: BackgroundAppsModel) {
         self.preferences = preferences
         self.nowPlaying = nowPlaying
         self.focus = focus
         self.shelf = shelf
         self.clipboard = clipboard
+        self.backgroundApps = backgroundApps
     }
 
     func show() {
@@ -26,7 +28,14 @@ final class SettingsWindowController {
     }
 
     private func makeWindow() -> NSWindow {
-        let controller = NSHostingController(rootView: SettingsView(preferences: preferences, nowPlaying: nowPlaying, focus: focus, shelf: shelf, clipboard: clipboard))
+        let controller = NSHostingController(rootView: SettingsView(
+            preferences: preferences,
+            nowPlaying: nowPlaying,
+            focus: focus,
+            shelf: shelf,
+            clipboard: clipboard,
+            backgroundApps: backgroundApps
+        ))
         controller.sizingOptions = [.preferredContentSize]
         let window = NSWindow(contentViewController: controller)
         window.title = tr("動態島設定", "DynamicIsland Settings")
