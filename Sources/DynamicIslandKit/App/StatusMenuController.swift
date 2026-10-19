@@ -9,7 +9,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.services = services
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         super.init()
-        statusItem.button?.image = NSImage(systemSymbolName: "capsule.fill", accessibilityDescription: "動態島")
+        statusItem.button?.image = NSImage(systemSymbolName: "capsule.fill", accessibilityDescription: tr("動態島", "DynamicIsland"))
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
@@ -18,11 +18,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     // 每次打開選單時重建，標題（例如「隱藏／顯示」）才會是最新的。
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
-        menu.addItem(item("設定…", key: ",") { [weak self] in
+        menu.addItem(item(tr("設定…", "Settings…"), key: ",") { [weak self] in
             self?.services.showSettings()
         })
         let hidden = services.preferences.islandHidden
-        menu.addItem(item(hidden ? "顯示動態島" : "隱藏動態島") { [weak self] in
+        menu.addItem(item(hidden ? tr("顯示動態島", "Show Island") : tr("隱藏動態島", "Hide Island")) { [weak self] in
             self?.services.toggleIslandHidden()
         })
         #if DEBUG
@@ -30,14 +30,14 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.addItem(makeDebugMenuItem())
         #endif
         menu.addItem(.separator())
-        menu.addItem(item("結束動態島", key: "q") {
+        menu.addItem(item(tr("結束動態島", "Quit DynamicIsland"), key: "q") {
             NSApp.terminate(nil)
         })
     }
 
     #if DEBUG
     private func makeDebugMenuItem() -> NSMenuItem {
-        let parent = NSMenuItem(title: "模擬事件", action: nil, keyEquivalent: "")
+        let parent = NSMenuItem(title: tr("模擬事件", "Simulate Event"), action: nil, keyEquivalent: "")
         let submenu = NSMenu()
         for simulation in services.debugSimulations() {
             submenu.addItem(item(simulation.title, action: simulation.run))

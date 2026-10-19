@@ -9,8 +9,8 @@ enum ExpandMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .hover: "滑鼠停留"
-        case .click: "點擊"
+        case .hover: tr("滑鼠停留", "Hover")
+        case .click: tr("點擊", "Click")
         }
     }
 }

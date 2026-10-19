@@ -5,7 +5,7 @@
 把 MacBook 的瀏海變成 iPhone 那樣的動態島。只顯示在內建螢幕的瀏海上，外接螢幕不受影響。
 
 <p align="center">
-  <img src="docs/images/expanded-media.png" width="660" alt="展開後的音樂播放器">
+  <img src="docs/images/zh-Hant/expanded-media.png" width="660" alt="展開後的音樂播放器">
 </p>
 
 ## 截圖
@@ -16,24 +16,24 @@
 
 | | |
 |---|---|
-| <img src="docs/images/compact-now-playing.png" width="420" alt="音樂播放"><br>音樂播放 | <img src="docs/images/compact-music-timer.png" width="420" alt="音樂＋計時器"><br>音樂＋計時器 |
-| <img src="docs/images/compact-charging.png" width="420" alt="充電中"><br>充電中 | <img src="docs/images/compact-volume.png" width="420" alt="音量"><br>音量 |
-| <img src="docs/images/compact-focus.png" width="420" alt="專注模式"><br>專注模式 | <img src="docs/images/compact-microphone.png" width="420" alt="麥克風使用中"><br>麥克風使用中 |
-| <img src="docs/images/compact-clipboard.png" width="420" alt="剪貼簿"><br>剪貼簿 | |
+| <img src="docs/images/zh-Hant/compact-now-playing.png" width="420" alt="音樂播放"><br>音樂播放 | <img src="docs/images/zh-Hant/compact-music-timer.png" width="420" alt="音樂＋計時器"><br>音樂＋計時器 |
+| <img src="docs/images/zh-Hant/compact-charging.png" width="420" alt="充電中"><br>充電中 | <img src="docs/images/zh-Hant/compact-volume.png" width="420" alt="音量"><br>音量 |
+| <img src="docs/images/zh-Hant/compact-focus.png" width="420" alt="專注模式"><br>專注模式 | <img src="docs/images/zh-Hant/compact-microphone.png" width="420" alt="麥克風使用中"><br>麥克風使用中 |
+| <img src="docs/images/zh-Hant/compact-clipboard.png" width="420" alt="剪貼簿"><br>剪貼簿 | |
 
 ### 提示
 
 | | |
 |---|---|
-| <img src="docs/images/banner-airpods.png" width="420" alt="AirPods 連線"><br>AirPods 連線 | <img src="docs/images/banner-timer.png" width="420" alt="計時結束"><br>計時結束 |
-| <img src="docs/images/banner-low-battery.png" width="420" alt="低電量"><br>低電量 | |
+| <img src="docs/images/zh-Hant/banner-airpods.png" width="420" alt="AirPods 連線"><br>AirPods 連線 | <img src="docs/images/zh-Hant/banner-timer.png" width="420" alt="計時結束"><br>計時結束 |
+| <img src="docs/images/zh-Hant/banner-low-battery.png" width="420" alt="低電量"><br>低電量 | |
 
 ### 展開後
 
 | | |
 |---|---|
-| <img src="docs/images/expanded-shelf.png" width="420" alt="檔案暫存架"><br>檔案暫存架 | <img src="docs/images/expanded-timer.png" width="420" alt="番茄鐘"><br>番茄鐘 |
-| <img src="docs/images/expanded-clipboard.png" width="420" alt="剪貼簿紀錄"><br>剪貼簿紀錄 | <img src="docs/images/settings-general.png" width="300" alt="設定"><br>設定 |
+| <img src="docs/images/zh-Hant/expanded-shelf.png" width="420" alt="檔案暫存架"><br>檔案暫存架 | <img src="docs/images/zh-Hant/expanded-timer.png" width="420" alt="番茄鐘"><br>番茄鐘 |
+| <img src="docs/images/zh-Hant/expanded-clipboard.png" width="420" alt="剪貼簿紀錄"><br>剪貼簿紀錄 | <img src="docs/images/zh-Hant/settings-general.png" width="300" alt="設定"><br>設定 |
 
 截圖是用 `make screenshots` 從程式產生的（假的桌布與歌曲），不是螢幕錄影。
 
@@ -55,6 +55,7 @@
 - 兩個活動同時進行時（音樂＋計時器、音樂＋麥克風、計時器＋螢幕錄影…），收合時瀏海左右兩側各顯示一個；音樂固定在左邊。麥克風／螢幕錄影只會排在別的活動旁邊，不會單獨佔用島。可以在設定「一般 › 收合時」關掉，改回只顯示優先的那一個（計時器 > 音樂）。
 - 每一種提示（含音量、專注模式、麥克風、螢幕錄影）和剪貼簿紀錄都可以在設定裡個別開關。
 - 剪貼簿紀錄只存在記憶體裡，結束 App 就清掉；密碼管理器標示為隱藏的內容（`org.nspasteboard.ConcealedType` 等）不會記錄。
+- 介面有繁體中文與英文，預設跟著 macOS 的語言順序：中文排在英文前面就用繁體中文，否則用英文。也可以在設定「一般 › 語言」自己指定（重新啟動後生效）。
 - 滑鼠停在瀏海上會展開（可改成點擊展開），移開就收合；島以外的區域點擊會直接穿透到選單列。
 
 ## 需求
@@ -75,7 +76,7 @@ make run
 | `make debug` | Debug 建置；選單列多一個「模擬事件」子選單，不用實機就能看插電、AirPods、計時結束等畫面 |
 | `make install` | 安裝到 `~/Applications` 並啟動（要「登入時自動開啟」建議用安裝後的版本） |
 | `make test` | 執行單元測試（Swift Testing） |
-| `make screenshots` | 重新產生 README 的截圖（`docs/images`） |
+| `make screenshots` | 重新產生 README 的中英文截圖（`docs/images/en`、`docs/images/zh-Hant`） |
 | `make icon` | 重新產生 `Resources/AppIcon.icns` |
 | `make clean` | 刪掉建置產物 |
 
@@ -107,9 +108,9 @@ SIGN_IDENTITY="DynamicIsland Dev" make run
 ```
 Package.swift                 Swift Package（不需要 Xcode 專案）
 Makefile, scripts/            建置、打包、簽章、App 圖示、README 截圖
-Resources/                    Info.plist、App 圖示
+Resources/                    Info.plist、App 圖示、各語言的 App 名稱與權限說明（*.lproj）
 Vendor/mediaremote-adapter/   全系統「正在播放」（BSD-3，見 Vendor/README.md）
-docs/images/                  README 截圖
+docs/images/                  README 截圖（en、zh-Hant）
 Sources/DynamicIsland/        進入點
 Sources/DynamicIslandKit/
   App/        啟動、服務組裝、選單列
@@ -126,11 +127,11 @@ Tests/DynamicIslandKitTests/  單元測試
 - **只有 Command Line Tools 時的限制**：這版 SDK 的 `@State` 是 macro，它的實作只跟著 Xcode 發佈，所以程式碼用 `@ViewState`（`State` property wrapper 的別名）。`#Preview`、Asset Catalog、String Catalog 也不能用。
 - **Swift Testing**：SwiftPM 的預設建置系統在只有 Command Line Tools 時不會載入 Testing 的 macro plugin，`make test` 會自動補上；直接用 `swift test` 會編譯失敗。
 - **外觀快照**：`make debug` 之後執行 `.build/debug/DynamicIsland --snapshots <資料夾>`，會把每一種狀態畫成 PNG（紅框是實體瀏海的位置，加 `--no-guides` 就不畫），不需要螢幕錄製權限。`--settings-snapshots <資料夾>` 則是設定視窗的每一頁。
+- **在地化**：介面字串把兩種語言寫在一起，例如 `tr("充電中", "Charging")`（見 `Support/Localization.swift`），語言在啟動時決定一次。上面的快照指令加上 `-AppleLanguages "(en)"` 就能畫指定的語言。
 - **紀錄**：`log stream --predicate 'subsystem == "com.howardyu.DynamicIsland"' --info`
 
 ## 已知限制
 
-- 介面目前只有繁體中文。
 - 全系統音樂靠 mediaremote-adapter 借用系統的 `/usr/bin/perl` 讀取私有框架，未來 macOS 更新可能失效（會自動退回 Music／Spotify 模式）。
 - 收合時的音樂膠囊會蓋住瀏海旁邊的選單列項目；可以在設定裡關掉「收合時在瀏海兩側顯示封面與音波」。
 - 音波動畫是裝飾性的，不是真的頻譜。

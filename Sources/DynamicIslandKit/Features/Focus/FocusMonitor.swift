@@ -10,26 +10,28 @@ struct FocusMode: Equatable {
     /// 系統顏色名稱，例如「systemIndigoColor」。
     let tintName: String?
 
-    /// 系統內建的專注模式用中文名稱與預設圖示；自訂的用使用者取的名字。
+    /// 系統內建的專注模式用介面語言的名稱與預設圖示；自訂的用使用者取的名字。
     init(identifier: String, configuredName: String?, symbolName: String?, tintName: String?) {
         let builtIn = Self.builtIn[identifier]
         self.identifier = identifier
-        self.name = builtIn?.name ?? configuredName.flatMap { $0.isEmpty ? nil : $0 } ?? "專注模式"
+        self.name = builtIn.map { tr($0.chinese, $0.english) }
+            ?? configuredName.flatMap { $0.isEmpty ? nil : $0 }
+            ?? tr("專注模式", "Focus")
         self.symbolName = symbolName.flatMap { $0.isEmpty ? nil : $0 } ?? builtIn?.symbol ?? "moon.fill"
         self.tintName = tintName
     }
 
-    private static let builtIn: [String: (name: String, symbol: String)] = [
-        "com.apple.donotdisturb.mode.default": ("勿擾模式", "moon.fill"),
-        "com.apple.sleep.sleep-mode": ("睡眠", "bed.double.fill"),
-        "com.apple.focus.work": ("工作", "person.lanyardcard.fill"),
-        "com.apple.focus.personal-time": ("個人", "person.fill"),
-        "com.apple.donotdisturb.mode.driving": ("駕駛", "car.fill"),
-        "com.apple.focus.reading": ("閱讀", "book.fill"),
-        "com.apple.focus.gaming": ("遊戲", "gamecontroller.fill"),
-        "com.apple.focus.fitness": ("健身", "figure.run"),
-        "com.apple.focus.mindfulness": ("正念", "wind"),
-        "com.apple.focus.reduce-interruptions": ("減少干擾", "sparkles"),
+    private static let builtIn: [String: (chinese: String, english: String, symbol: String)] = [
+        "com.apple.donotdisturb.mode.default": ("勿擾模式", "Do Not Disturb", "moon.fill"),
+        "com.apple.sleep.sleep-mode": ("睡眠", "Sleep", "bed.double.fill"),
+        "com.apple.focus.work": ("工作", "Work", "person.lanyardcard.fill"),
+        "com.apple.focus.personal-time": ("個人", "Personal", "person.fill"),
+        "com.apple.donotdisturb.mode.driving": ("駕駛", "Driving", "car.fill"),
+        "com.apple.focus.reading": ("閱讀", "Reading", "book.fill"),
+        "com.apple.focus.gaming": ("遊戲", "Gaming", "gamecontroller.fill"),
+        "com.apple.focus.fitness": ("健身", "Fitness", "figure.run"),
+        "com.apple.focus.mindfulness": ("正念", "Mindfulness", "wind"),
+        "com.apple.focus.reduce-interruptions": ("減少干擾", "Reduce Interruptions", "sparkles"),
     ]
 }
 

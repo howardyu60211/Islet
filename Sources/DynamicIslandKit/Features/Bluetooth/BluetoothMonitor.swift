@@ -129,7 +129,7 @@ final class BluetoothMonitor: NSObject, CBCentralManagerDelegate {
     }
 
     private func makeSnapshot(of device: IOBluetoothDevice, address: String) -> BluetoothDeviceSnapshot {
-        let name = device.name ?? "藍牙耳機"
+        let name = device.name ?? tr("藍牙耳機", "Bluetooth Headphones")
         return BluetoothDeviceSnapshot(
             name: name,
             address: address,

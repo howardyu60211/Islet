@@ -12,8 +12,8 @@ final class TimerModel {
 
         var title: String {
             switch self {
-            case .countdown: "計時器"
-            case .pomodoro: "番茄鐘"
+            case .countdown: tr("計時器", "Timer")
+            case .pomodoro: tr("番茄鐘", "Pomodoro")
             }
         }
     }
@@ -26,10 +26,10 @@ final class TimerModel {
 
         var title: String {
             switch self {
-            case .countdown: "計時器"
-            case .focus: "專注"
-            case .shortBreak: "短休息"
-            case .longBreak: "長休息"
+            case .countdown: tr("計時器", "Timer")
+            case .focus: tr("專注", "Focus")
+            case .shortBreak: tr("短休息", "Short Break")
+            case .longBreak: tr("長休息", "Long Break")
             }
         }
 
@@ -168,7 +168,10 @@ final class TimerModel {
         switch phase {
         case .countdown:
             runState = .idle
-            onFinished(.timerFinished(title: "時間到！", subtitle: "\(countdownMinutes) 分鐘計時結束"))
+            onFinished(.timerFinished(
+                title: tr("時間到！", "Time's up!"),
+                subtitle: tr("\(countdownMinutes) 分鐘計時結束", "\(countdownMinutes)-minute timer finished")
+            ))
         case .focus:
             let rounds = max(preferences.pomodoroRounds, 1)
             if completedFocusSessions + 1 >= rounds {
@@ -177,14 +180,20 @@ final class TimerModel {
                 phase = .focus
                 duration = length(of: .focus)
                 runState = .idle
-                onFinished(.timerFinished(title: "番茄鐘完成！", subtitle: "完成 \(rounds) 輪專注，好好休息吧"))
+                onFinished(.timerFinished(
+                    title: tr("番茄鐘完成！", "Pomodoro complete!"),
+                    subtitle: tr("完成 \(rounds) 輪專注，好好休息吧", "\(rounds) focus rounds done — enjoy your break")
+                ))
                 return
             }
             let next = advancePhase(countingFocus: true)
-            onFinished(.timerFinished(title: "專注時間結束", subtitle: "\(next.title) \(minutes(of: next)) 分鐘吧"))
+            onFinished(.timerFinished(
+                title: tr("專注時間結束", "Focus time's over"),
+                subtitle: tr("\(next.title) \(minutes(of: next)) 分鐘吧", "Time for a \(minutes(of: next))-minute \(next.title.lowercased())")
+            ))
         case .shortBreak, .longBreak:
             advancePhase(countingFocus: false)
-            onFinished(.timerFinished(title: "休息結束", subtitle: "開始下一輪專注"))
+            onFinished(.timerFinished(title: tr("休息結束", "Break's over"), subtitle: tr("開始下一輪專注", "Start the next focus round")))
         }
     }
 

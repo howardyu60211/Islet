@@ -7,8 +7,16 @@ enum Sensor: String, Hashable {
 
     var title: String {
         switch self {
-        case .microphone: "麥克風"
-        case .screenRecording: "螢幕錄影"
+        case .microphone: tr("麥克風", "Microphone")
+        case .screenRecording: tr("螢幕錄影", "Screen Recording")
+        }
+    }
+
+    /// 收合時瀏海旁邊的短名稱。
+    var compactTitle: String {
+        switch self {
+        case .microphone: tr("麥克風", "Microphone")
+        case .screenRecording: tr("螢幕錄影", "Recording")
         }
     }
 

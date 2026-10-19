@@ -29,7 +29,7 @@ final class SettingsWindowController {
         let controller = NSHostingController(rootView: SettingsView(preferences: preferences, nowPlaying: nowPlaying, focus: focus, shelf: shelf, clipboard: clipboard))
         controller.sizingOptions = [.preferredContentSize]
         let window = NSWindow(contentViewController: controller)
-        window.title = "動態島設定"
+        window.title = tr("動態島設定", "DynamicIsland Settings")
         window.styleMask = [.titled, .closable, .miniaturizable]
         window.isReleasedWhenClosed = false
         window.center()

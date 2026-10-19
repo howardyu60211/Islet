@@ -14,7 +14,7 @@ struct MediaPlayerView: View {
                     ArtworkView(model: model, size: 96, cornerRadius: 16, showsSourceBadge: true)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("打開播放的 App")
+                .accessibilityLabel(tr("打開播放的 App", "Open the playing app"))
 
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .top, spacing: 10) {
@@ -64,10 +64,10 @@ private struct EmptyMediaView: View {
             Image(systemName: "music.note")
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.35))
-            Text("目前沒有播放")
+            Text(tr("目前沒有播放", "Nothing playing"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.white.opacity(0.7))
-            Text("來源：\(backend.title)")
+            Text(tr("來源：\(backend.title)", "Source: \(backend.title)"))
                 .font(.system(size: 10))
                 .foregroundStyle(.white.opacity(0.35))
         }
@@ -181,7 +181,7 @@ private struct PlaybackControls: View {
         HStack(spacing: 0) {
             HStack(spacing: 2) {
                 if let shuffle = info.shuffleMode {
-                    ModeButton(symbol: "shuffle", isOn: shuffle != 1, tint: model.accentColor, label: "隨機播放") {
+                    ModeButton(symbol: "shuffle", isOn: shuffle != 1, tint: model.accentColor, label: tr("隨機播放", "Shuffle")) {
                         model.toggleShuffle()
                     }
                 }
@@ -190,7 +190,7 @@ private struct PlaybackControls: View {
                         symbol: repeatMode == 2 ? "repeat.1" : "repeat",
                         isOn: repeatMode != 1,
                         tint: model.accentColor,
-                        label: "重複播放"
+                        label: tr("重複播放", "Repeat")
                     ) {
                         model.cycleRepeat()
                     }
@@ -201,15 +201,15 @@ private struct PlaybackControls: View {
             Spacer(minLength: 0)
             HStack(spacing: 14) {
                 if info.duration != nil {
-                    ControlButton(symbol: "gobackward.15", size: 14, label: "倒轉 15 秒") { model.skip(by: -15) }
+                    ControlButton(symbol: "gobackward.15", size: 14, label: tr("倒轉 15 秒", "Back 15 seconds")) { model.skip(by: -15) }
                 }
-                ControlButton(symbol: "backward.fill", size: 15, label: "上一首") { model.previousTrack() }
-                ControlButton(symbol: info.isPlaying ? "pause.fill" : "play.fill", size: 22, label: info.isPlaying ? "暫停" : "播放") {
+                ControlButton(symbol: "backward.fill", size: 15, label: tr("上一首", "Previous")) { model.previousTrack() }
+                ControlButton(symbol: info.isPlaying ? "pause.fill" : "play.fill", size: 22, label: info.isPlaying ? tr("暫停", "Pause") : tr("播放", "Play")) {
                     model.togglePlayPause()
                 }
-                ControlButton(symbol: "forward.fill", size: 15, label: "下一首") { model.nextTrack() }
+                ControlButton(symbol: "forward.fill", size: 15, label: tr("下一首", "Next")) { model.nextTrack() }
                 if info.duration != nil {
-                    ControlButton(symbol: "goforward.15", size: 14, label: "快轉 15 秒") { model.skip(by: 15) }
+                    ControlButton(symbol: "goforward.15", size: 14, label: tr("快轉 15 秒", "Forward 15 seconds")) { model.skip(by: 15) }
                 }
             }
             Spacer(minLength: 0)
@@ -242,7 +242,7 @@ private struct ModeButton: View {
         .buttonStyle(.plain)
         .onHover { isHovering = $0 }
         .accessibilityLabel(label)
-        .accessibilityValue(isOn ? "開" : "關")
+        .accessibilityValue(isOn ? tr("開", "On") : tr("關", "Off"))
     }
 }
 
@@ -264,7 +264,7 @@ private struct OutputDeviceMenu: View {
             icon
         } else {
             Menu {
-                Section("輸出裝置") {
+                Section(tr("輸出裝置", "Output Device")) {
                     ForEach(outputs.devices) { device in
                         Button {
                             outputs.select(device)
@@ -285,7 +285,7 @@ private struct OutputDeviceMenu: View {
             .menuIndicator(.hidden)
             .fixedSize()
             .onHover { isHovering = $0 }
-            .accessibilityLabel("輸出裝置：\(outputs.current?.name ?? "未知")")
+            .accessibilityLabel(tr("輸出裝置：\(outputs.current?.name ?? "未知")", "Output device: \(outputs.current?.name ?? "Unknown")"))
         }
     }
 }

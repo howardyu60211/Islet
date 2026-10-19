@@ -94,7 +94,10 @@ enum SnapshotRenderer {
             Scenario(name: "03-banner-bluetooth") { $0.post(IslandEvent(kind: .bluetooth(device: airPods, connected: true))) },
             Scenario(name: "04-banner-low-battery") { $0.post(IslandEvent(kind: .lowBattery(level: 10))) },
             Scenario(name: "05-banner-timer") {
-                $0.post(IslandEvent(kind: .timerFinished(title: "專注時間結束", subtitle: "休息 5 分鐘吧")))
+                $0.post(IslandEvent(kind: .timerFinished(
+                    title: tr("專注時間結束", "Focus time's over"),
+                    subtitle: tr("短休息 5 分鐘吧", "Time for a 5-minute short break")
+                )))
             },
             Scenario(name: "06-expanded-media") { $0.expand(tab: .media) },
             Scenario(name: "06b-expanded-media-shuffle-repeat") { island in
@@ -153,14 +156,14 @@ enum SnapshotRenderer {
             },
             Scenario(name: "14b-expanded-clipboard-empty") { $0.expand(tab: .clipboard) },
             Scenario(name: "15-compact-clipboard-text") {
-                $0.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: "會議改到週四下午三點", image: nil))))
+                $0.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: tr("會議改到週四下午三點", "Meeting moved to Thursday 3 PM"), image: nil))))
             },
             Scenario(name: "15b-compact-clipboard-image") { island in
                 let image = DebugArtwork.pngData.flatMap(NSImage.init(data:))?.thumbnail(maxSide: 160)
                 island.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .image, excerpt: "", image: image))))
             },
             Scenario(name: "15c-compact-clipboard-files") {
-                $0.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .files(count: 3), excerpt: "報告.pdf", image: nil))))
+                $0.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .files(count: 3), excerpt: tr("報告.pdf", "Report.pdf"), image: nil))))
             },
             Scenario(name: "16-compact-pair-music-timer") { island in
                 island.timer.setCountdown(minutes: 25)
@@ -183,12 +186,12 @@ extension SnapshotRenderer {
     /// 剪貼簿快照用的假紀錄（最新的在前面）。
     static func fillClipboard(_ island: IslandViewModel) {
         let samples: [(String, String?, String?)] = [
-            ("報告初稿第三版", "Pages", "com.apple.iWork.Pages"),
+            (tr("報告初稿第三版", "Report draft v3"), "Pages", "com.apple.iWork.Pages"),
             ("brew install --cask iina", "Terminal", "com.apple.Terminal"),
             ("let island = IslandViewModel(preferences: preferences)", "Xcode", "com.apple.dt.Xcode"),
             ("https://developer.apple.com/documentation/swiftui", "Safari", "com.apple.Safari"),
-            ("會議改到週四下午三點，地點在 7 樓大會議室。記得帶上次的簡報。", "Messages", "com.apple.MobileSMS"),
-            ("台北市信義區市府路 1 號", "Maps", "com.apple.Maps"),
+            (tr("會議改到週四下午三點，地點在 7 樓大會議室。記得帶上次的簡報。", "Meeting moved to Thursday 3 PM in the big room on 7F. Bring last week's slides."), "Messages", "com.apple.MobileSMS"),
+            (tr("台北市信義區市府路 1 號", "1 Apple Park Way, Cupertino"), "Maps", "com.apple.Maps"),
         ]
         for (value, app, bundleID) in samples.reversed() {
             let pasteboard = NSPasteboard(name: NSPasteboard.Name("snapshot-\(UUID().uuidString)"))

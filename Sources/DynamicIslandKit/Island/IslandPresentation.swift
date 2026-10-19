@@ -12,10 +12,10 @@ enum IslandTab: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .media: "音樂"
-        case .shelf: "暫存架"
-        case .clipboard: "剪貼簿"
-        case .timer: "計時器"
+        case .media: tr("音樂", "Music")
+        case .shelf: tr("暫存架", "Shelf")
+        case .clipboard: tr("剪貼簿", "Clipboard")
+        case .timer: tr("計時器", "Timer")
         }
     }
 
@@ -151,7 +151,8 @@ enum CompactActivity: Equatable {
         case .charging: 76
         case .unplugged: 84
         case .volume: 84
-        case .focus, .sensor, .clipboard: 84
+        // 英文的「Do Not Disturb」「Microphone」比中文長，兩側放寬一點
+        case .focus, .sensor, .clipboard: AppLanguage.current == .english ? 100 : 84
         // 島對齊瀏海置中，所以兩側取比較寬的那個
         case .pair(let leading, let trailing): max(leading.sideWidth, trailing.sideWidth)
         }

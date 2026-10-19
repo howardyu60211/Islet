@@ -79,7 +79,7 @@ private struct ClipboardWheel: View {
             )
         )
         .contentShape(Rectangle())
-        .help("上下滑動選擇，點中間那筆複製")
+        .help(tr("上下滑動選擇，點中間那筆複製", "Scroll to choose; click the middle item to copy"))
     }
 }
 
@@ -181,7 +181,7 @@ private struct ClipboardPreview: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .contentShape(Rectangle())
                 .onTapGesture { clipboard.copy(item) }
-                .help("點一下複製")
+                .help(tr("點一下複製", "Click to copy"))
             footer
         }
         .padding(10)
@@ -194,7 +194,7 @@ private struct ClipboardPreview: View {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(.black.opacity(0.65))
                     .overlay {
-                        Label("已複製", systemImage: "checkmark.circle.fill")
+                        Label(tr("已複製", "Copied"), systemImage: "checkmark.circle.fill")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(.green)
                     }
@@ -251,7 +251,7 @@ private struct ClipboardPreview: View {
                         .font(.system(size: 12, weight: .medium))
                         .lineLimit(2)
                         .truncationMode(.middle)
-                    Text(urls.count > 1 ? "還有 \(urls.count - 1) 個項目" : urls[0].deletingLastPathComponent().path)
+                    Text(urls.count > 1 ? tr("還有 \(urls.count - 1) 個項目", "\(urls.count - 1) more") : urls[0].deletingLastPathComponent().path)
                         .font(.system(size: 10))
                         .foregroundStyle(.white.opacity(0.5))
                         .lineLimit(1)
@@ -274,10 +274,10 @@ private struct ClipboardPreview: View {
                 .foregroundStyle(.white.opacity(0.45))
                 .lineLimit(1)
             Spacer(minLength: 6)
-            RoundIconButton(symbol: "trash", label: "從紀錄中移除") {
+            RoundIconButton(symbol: "trash", label: tr("從紀錄中移除", "Remove from History")) {
                 withAnimation(.smooth(duration: 0.2)) { clipboard.remove(item) }
             }
-            PillButton(title: "拷貝", isSelected: true, compact: true) { clipboard.copy(item) }
+            PillButton(title: tr("拷貝", "Copy"), isSelected: true, compact: true) { clipboard.copy(item) }
         }
         .frame(height: 22)
     }
@@ -285,12 +285,13 @@ private struct ClipboardPreview: View {
     private static let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
+        formatter.locale = AppLanguage.current.locale
         return formatter
     }()
 
     /// 只在打開時算一次（不用 Text(_:style: .relative)，那個每秒都會重畫）。
     private static func relative(_ date: Date) -> String {
-        Date().timeIntervalSince(date) < 10 ? "剛剛" : relativeFormatter.localizedString(for: date, relativeTo: Date())
+        Date().timeIntervalSince(date) < 10 ? tr("剛剛", "Just now") : relativeFormatter.localizedString(for: date, relativeTo: Date())
     }
 }
 
@@ -300,18 +301,18 @@ private struct ClipboardItemMenu: View {
     let clipboard: ClipboardModel
 
     var body: some View {
-        Button("拷貝") { clipboard.copy(item) }
+        Button(tr("拷貝", "Copy")) { clipboard.copy(item) }
         if case .files = item.preview {
-            Button("在 Finder 中顯示") { clipboard.revealInFinder(item) }
+            Button(tr("在 Finder 中顯示", "Show in Finder")) { clipboard.revealInFinder(item) }
         }
         if case .link(let url) = item.preview {
-            Button("在瀏覽器中打開") { NSWorkspace.shared.open(url) }
+            Button(tr("在瀏覽器中打開", "Open in Browser")) { NSWorkspace.shared.open(url) }
         }
         Divider()
-        Button("從紀錄中移除") {
+        Button(tr("從紀錄中移除", "Remove from History")) {
             withAnimation(.smooth(duration: 0.2)) { clipboard.remove(item) }
         }
-        Button("清空所有紀錄") {
+        Button(tr("清空所有紀錄", "Clear All History")) {
             withAnimation(.smooth(duration: 0.2)) { clipboard.removeAll() }
         }
     }
@@ -327,18 +328,20 @@ extension ClipboardModel.Item {
         case .link(let url):
             url.host ?? url.absoluteString
         case .image(let image):
-            "圖片 \(Int(image.size.width))×\(Int(image.size.height))"
+            tr("圖片 \(Int(image.size.width))×\(Int(image.size.height))", "Image \(Int(image.size.width))×\(Int(image.size.height))")
         case .files(let urls):
-            urls.count > 1 ? "\(urls[0].lastPathComponent) 等 \(urls.count) 個" : urls[0].lastPathComponent
+            urls.count > 1
+                ? tr("\(urls[0].lastPathComponent) 等 \(urls.count) 個", "\(urls[0].lastPathComponent) and \(urls.count - 1) more")
+                : urls[0].lastPathComponent
         }
     }
 
     var kindTitle: String {
         switch preview {
-        case .text: "文字"
-        case .link: "連結"
-        case .image: "圖片"
-        case .files: "檔案"
+        case .text: tr("文字", "Text")
+        case .link: tr("連結", "Link")
+        case .image: tr("圖片", "Image")
+        case .files: tr("檔案", "Files")
         }
     }
 }
@@ -349,10 +352,10 @@ private struct EmptyClipboardView: View {
             Image(systemName: "doc.on.clipboard")
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.35))
-            Text("複製的文字、連結、圖片和檔案會出現在這裡")
+            Text(tr("複製的文字、連結、圖片和檔案會出現在這裡", "Text, links, images and files you copy appear here"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.white.opacity(0.7))
-            Text("點一下就能再複製一次；結束 App 時紀錄會清除")
+            Text(tr("點一下就能再複製一次；結束 App 時紀錄會清除", "Click one to copy it again. History is cleared when the app quits"))
                 .font(.system(size: 10))
                 .foregroundStyle(.white.opacity(0.35))
         }

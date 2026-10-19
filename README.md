@@ -5,10 +5,10 @@
 Turns the MacBook notch into an iPhone-style Dynamic Island. It lives only on the built-in display's notch; external displays are left alone.
 
 <p align="center">
-  <img src="docs/images/expanded-media.png" width="660" alt="Expanded music player">
+  <img src="docs/images/en/expanded-media.png" width="660" alt="Expanded music player">
 </p>
 
-> The app's interface is currently in Traditional Chinese only.
+> The interface is available in English and Traditional Chinese.
 
 ## Screenshots
 
@@ -18,24 +18,24 @@ Ongoing activities sit on either side of the notch; when two run at once, each g
 
 | | |
 |---|---|
-| <img src="docs/images/compact-now-playing.png" width="420" alt="Now playing"><br>Now playing | <img src="docs/images/compact-music-timer.png" width="420" alt="Music + timer"><br>Music + timer |
-| <img src="docs/images/compact-charging.png" width="420" alt="Charging"><br>Charging | <img src="docs/images/compact-volume.png" width="420" alt="Volume"><br>Volume |
-| <img src="docs/images/compact-focus.png" width="420" alt="Focus"><br>Focus | <img src="docs/images/compact-microphone.png" width="420" alt="Microphone in use"><br>Microphone in use |
-| <img src="docs/images/compact-clipboard.png" width="420" alt="Clipboard"><br>Clipboard | |
+| <img src="docs/images/en/compact-now-playing.png" width="420" alt="Now playing"><br>Now playing | <img src="docs/images/en/compact-music-timer.png" width="420" alt="Music + timer"><br>Music + timer |
+| <img src="docs/images/en/compact-charging.png" width="420" alt="Charging"><br>Charging | <img src="docs/images/en/compact-volume.png" width="420" alt="Volume"><br>Volume |
+| <img src="docs/images/en/compact-focus.png" width="420" alt="Focus"><br>Focus | <img src="docs/images/en/compact-microphone.png" width="420" alt="Microphone in use"><br>Microphone in use |
+| <img src="docs/images/en/compact-clipboard.png" width="420" alt="Clipboard"><br>Clipboard | |
 
 ### Notifications
 
 | | |
 |---|---|
-| <img src="docs/images/banner-airpods.png" width="420" alt="AirPods connected"><br>AirPods connected | <img src="docs/images/banner-timer.png" width="420" alt="Timer finished"><br>Timer finished |
-| <img src="docs/images/banner-low-battery.png" width="420" alt="Low battery"><br>Low battery | |
+| <img src="docs/images/en/banner-airpods.png" width="420" alt="AirPods connected"><br>AirPods connected | <img src="docs/images/en/banner-timer.png" width="420" alt="Timer finished"><br>Timer finished |
+| <img src="docs/images/en/banner-low-battery.png" width="420" alt="Low battery"><br>Low battery | |
 
 ### Expanded
 
 | | |
 |---|---|
-| <img src="docs/images/expanded-shelf.png" width="420" alt="File shelf"><br>File shelf | <img src="docs/images/expanded-timer.png" width="420" alt="Pomodoro"><br>Pomodoro |
-| <img src="docs/images/expanded-clipboard.png" width="420" alt="Clipboard history"><br>Clipboard history | <img src="docs/images/settings-general.png" width="300" alt="Settings"><br>Settings |
+| <img src="docs/images/en/expanded-shelf.png" width="420" alt="File shelf"><br>File shelf | <img src="docs/images/en/expanded-timer.png" width="420" alt="Pomodoro"><br>Pomodoro |
+| <img src="docs/images/en/expanded-clipboard.png" width="420" alt="Clipboard history"><br>Clipboard history | <img src="docs/images/en/settings-general.png" width="300" alt="Settings"><br>Settings |
 
 The screenshots are rendered by the app itself with `make screenshots` (fake wallpaper and song), not screen recordings.
 
@@ -54,9 +54,10 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 | Clipboard | When you copy or cut, the icon on the left bounces and a preview slides out on the right (start of the text, image thumbnail, or file count) | A wheel like a timer dial on the left showing 5 entries at a time (trackpad scroll, mouse wheel or ↑ ↓, with a light haptic tick per entry; trackpad speed is adjustable in Settings), and a preview of the selected entry on the right; Return copies, Esc collapses; click the middle entry or the preview to copy it again, right-click to remove or clear. Keeps up to 30 entries |
 
 - Now playing is system-wide: any app works, including YouTube in a browser (via [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter)). If a future macOS blocks this, the app falls back to a mode that only supports Music and Spotify.
-- When two activities run at once (music + timer, music + microphone, timer + screen recording…), the collapsed island shows one on each side of the notch, with music always on the left. Microphone / screen recording only appear next to another activity and never take over the island on their own. You can turn this off in Settings › General › Collapsed to show only the highest-priority activity (timer > music).
+- When two activities run at once (music + timer, music + microphone, timer + screen recording…), the collapsed island shows one on each side of the notch, with music always on the left. Microphone / screen recording only appear next to another activity and never take over the island on their own. You can turn this off in Settings › General › When Collapsed to show only the highest-priority activity (timer > music).
 - Every kind of alert (including volume, Focus, microphone and screen recording) and the clipboard history can be turned on or off individually in Settings.
 - Clipboard history is kept in memory only and cleared when the app quits; content that password managers mark as concealed (`org.nspasteboard.ConcealedType` and similar) is never recorded.
+- The interface follows your macOS language order: Traditional Chinese if Chinese comes before English, English otherwise. To choose one yourself, use Settings › General › Language (takes effect after a restart).
 - Hovering over the notch expands the island (or switch to click-to-expand), and moving away collapses it; clicks outside the island pass straight through to the menu bar.
 
 ## Requirements
@@ -74,10 +75,10 @@ This compiles, assembles `build/DynamicIsland.app` and launches it. Other comman
 
 | Command | Description |
 |---|---|
-| `make debug` | Debug build; adds a "Simulate event" submenu to the menu bar item so you can preview plugging in, AirPods, timer finished and more without real hardware |
+| `make debug` | Debug build; adds a "Simulate Event" submenu to the menu bar item so you can preview plugging in, AirPods, timer finished and more without real hardware |
 | `make install` | Installs to `~/Applications` and launches it (recommended if you use "Open at login") |
 | `make test` | Runs the unit tests (Swift Testing) |
-| `make screenshots` | Regenerates the README screenshots (`docs/images`) |
+| `make screenshots` | Regenerates the README screenshots in both languages (`docs/images/en`, `docs/images/zh-Hant`) |
 | `make icon` | Regenerates `Resources/AppIcon.icns` |
 | `make clean` | Deletes build products |
 
@@ -109,9 +110,9 @@ SIGN_IDENTITY="DynamicIsland Dev" make run
 ```
 Package.swift                 Swift Package (no Xcode project needed)
 Makefile, scripts/            Build, bundling, signing, app icon, README screenshots
-Resources/                    Info.plist, app icon
+Resources/                    Info.plist, app icon, localized app name and permission prompts (*.lproj)
 Vendor/mediaremote-adapter/   System-wide now playing (BSD-3, see Vendor/README.md)
-docs/images/                  README screenshots
+docs/images/                  README screenshots (en, zh-Hant)
 Sources/DynamicIsland/        Entry point
 Sources/DynamicIslandKit/
   App/        Startup, service wiring, menu bar item
@@ -128,13 +129,13 @@ Tests/DynamicIslandKitTests/  Unit tests
 - **Command Line Tools only**: in this SDK `@State` is a macro whose implementation ships only with Xcode, so the code uses `@ViewState` (an alias for the `State` property wrapper). `#Preview`, Asset Catalogs and String Catalogs are unavailable too.
 - **Swift Testing**: with only the Command Line Tools, SwiftPM's default build system doesn't load the Testing macro plugin. `make test` adds it for you; plain `swift test` fails to compile.
 - **Snapshots**: after `make debug`, run `.build/debug/DynamicIsland --snapshots <folder>` to render every state as a PNG (the red box marks the physical notch; add `--no-guides` to hide it). No screen recording permission needed. `--settings-snapshots <folder>` renders each Settings page.
+- **Localization**: UI strings are written in both languages side by side, e.g. `tr("充電中", "Charging")` (see `Support/Localization.swift`); the language is decided once at launch. Add `-AppleLanguages "(en)"` to the snapshot commands above to render a specific language.
 - **Logs**: `log stream --predicate 'subsystem == "com.howardyu.DynamicIsland"' --info`
 
 ## Known limitations
 
-- The interface is in Traditional Chinese only for now.
 - System-wide now playing relies on mediaremote-adapter using the system `/usr/bin/perl` to read a private framework, which a future macOS update may break (the app then falls back to Music/Spotify mode).
-- The collapsed music capsule covers menu bar items next to the notch; you can turn off "Show artwork and waveform beside the notch when collapsed" in Settings.
+- The collapsed music capsule covers menu bar items next to the notch; you can turn off "Show Artwork and Waveform Beside the Notch" in Settings › Music.
 - The waveform animation is decorative, not a real spectrum.
 - Focus has no public API, so the app reads the database in `~/Library/DoNotDisturb/DB`, which requires Full Disk Access. Only Focus modes turned on manually (Control Center, Shortcuts) are recognized; scheduled ones don't trigger an alert. With ad-hoc signing you also need to re-allow access after each rebuild (see the self-signed certificate above).
 - Screen recording detection uses the private WindowServer function `SLSIsScreenWatcherPresent`, so screen sharing and AirPlay mirroring may count too. If a future macOS removes the function, the toggle in Settings is greyed out.

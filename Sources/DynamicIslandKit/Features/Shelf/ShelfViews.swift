@@ -10,7 +10,7 @@ struct ShelfPanelView: View {
         Group {
             if island.isFileDragHovering {
                 HStack(spacing: 12) {
-                    DropZone(title: "放到暫存架", symbol: "tray.and.arrow.down.fill", tint: .white) { urls in
+                    DropZone(title: tr("放到暫存架", "Add to Shelf"), symbol: "tray.and.arrow.down.fill", tint: .white) { urls in
                         shelf.add(urls) > 0
                     }
                     DropZone(title: "AirDrop", symbol: "dot.radiowaves.left.and.right", tint: .blue) { urls in
@@ -29,10 +29,10 @@ struct ShelfPanelView: View {
                         }
                     }
                     VStack(spacing: 8) {
-                        PillButton(title: "全部 AirDrop", isSelected: false) {
+                        PillButton(title: tr("全部 AirDrop", "AirDrop All"), isSelected: false) {
                             shelf.airDrop(shelf.items.map(\.url))
                         }
-                        PillButton(title: "清空", isSelected: false) {
+                        PillButton(title: tr("清空", "Clear"), isSelected: false) {
                             withAnimation(.smooth(duration: 0.2)) { shelf.removeAll() }
                         }
                     }
@@ -49,10 +49,10 @@ private struct EmptyShelfView: View {
             Image(systemName: "tray")
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.35))
-            Text("把檔案拖到瀏海就能暫放")
+            Text(tr("把檔案拖到瀏海就能暫放", "Drag files onto the notch to keep them here"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.white.opacity(0.7))
-            Text("拖進來時也可以放到 AirDrop 直接傳送")
+            Text(tr("拖進來時也可以放到 AirDrop 直接傳送", "Or drop them on AirDrop to send them right away"))
                 .font(.system(size: 10))
                 .foregroundStyle(.white.opacity(0.35))
         }
@@ -138,11 +138,11 @@ private struct ShelfTile: View {
             return NSItemProvider(object: item.url as NSURL)
         }
         .contextMenu {
-            Button("開啟") { island.shelf.open(item) }
-            Button("在 Finder 中顯示") { island.shelf.revealInFinder(item) }
-            Button("用 AirDrop 傳送") { island.shelf.airDrop([item.url]) }
+            Button(tr("開啟", "Open")) { island.shelf.open(item) }
+            Button(tr("在 Finder 中顯示", "Show in Finder")) { island.shelf.revealInFinder(item) }
+            Button(tr("用 AirDrop 傳送", "Send with AirDrop")) { island.shelf.airDrop([item.url]) }
             Divider()
-            Button("從暫存架移除") {
+            Button(tr("從暫存架移除", "Remove from Shelf")) {
                 withAnimation(.smooth(duration: 0.2)) { island.shelf.remove(item) }
             }
         }

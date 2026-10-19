@@ -16,10 +16,10 @@ final class NowPlayingModel {
 
         var title: String {
             switch self {
-            case .off: "已關閉"
-            case .starting: "偵測中…"
-            case .systemWide: "全系統（任何 App）"
-            case .musicAndSpotify: "Music／Spotify"
+            case .off: tr("已關閉", "Off")
+            case .starting: tr("偵測中…", "Detecting…")
+            case .systemWide: tr("全系統（任何 App）", "System-wide (any app)")
+            case .musicAndSpotify: tr("Music／Spotify", "Music / Spotify")
             }
         }
     }

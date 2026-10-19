@@ -24,7 +24,7 @@ struct ExpandedView: View {
     @ViewBuilder
     private var tabContent: some View {
         if island.availableTabs.isEmpty {
-            Text("所有功能都已關閉，可以到設定裡打開。")
+            Text(tr("所有功能都已關閉，可以到設定裡打開。", "All features are turned off. You can turn them on in Settings."))
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
         } else {
@@ -66,10 +66,10 @@ private struct ExpandedHeader: View {
             HStack(spacing: 10) {
                 SensorIndicators(island: island)
                 BatteryIndicator(battery: island.battery)
-                HeaderIconButton(symbol: "gearshape.fill", label: "設定") {
+                HeaderIconButton(symbol: "gearshape.fill", label: tr("設定", "Settings")) {
                     island.openSettings()
                 }
-                HeaderIconButton(symbol: "power", label: "結束動態島") {
+                HeaderIconButton(symbol: "power", label: tr("結束動態島", "Quit DynamicIsland")) {
                     NSApp.terminate(nil)
                 }
             }
@@ -94,7 +94,7 @@ private struct SensorIndicators: View {
                         .frame(width: 18, height: 18)
                         .background(Circle().fill(sensor.tint))
                         .help(help(for: sensor))
-                        .accessibilityLabel("\(sensor.title)使用中")
+                        .accessibilityLabel(tr("\(sensor.title)使用中", "\(sensor.title) in use"))
                 }
             }
         }
@@ -104,9 +104,11 @@ private struct SensorIndicators: View {
         switch sensor {
         case .microphone:
             let names = island.microphone.apps.map(\.name)
-            return names.isEmpty ? "麥克風使用中" : "麥克風使用中：\(names.joined(separator: "、"))"
+            return names.isEmpty
+                ? tr("麥克風使用中", "Microphone in use")
+                : tr("麥克風使用中：\(names.joined(separator: "、"))", "Microphone in use: \(names.joined(separator: ", "))")
         case .screenRecording:
-            return "螢幕正在被錄影或分享"
+            return tr("螢幕正在被錄影或分享", "Screen is being recorded or shared")
         }
     }
 }

@@ -9,6 +9,9 @@ private final class FakeClock {
 }
 
 struct TimerModelTests {
+    // 這裡檢查的是中文字串，不管跑測試的電腦是什麼語言。
+    init() { AppLanguage.current = .traditionalChinese }
+
     private func makeModel(autoStart: Bool = false) -> (TimerModel, FakeClock, Preferences) {
         let defaults = UserDefaults(suiteName: "DynamicIslandTests-\(UUID().uuidString)")!
         let preferences = Preferences(defaults: defaults)

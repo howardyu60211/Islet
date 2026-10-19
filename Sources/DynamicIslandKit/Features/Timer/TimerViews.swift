@@ -134,13 +134,13 @@ private struct CountdownPresets: View {
     var body: some View {
         HStack(spacing: 5) {
             ForEach(TimerModel.presetMinutes, id: \.self) { minutes in
-                PillButton(title: "\(minutes) 分", isSelected: model.countdownMinutes == minutes, compact: true) {
+                PillButton(title: tr("\(minutes) 分", "\(minutes) min"), isSelected: model.countdownMinutes == minutes, compact: true) {
                     model.setCountdown(minutes: minutes)
                 }
             }
             Divider().frame(height: 14).overlay(.white.opacity(0.2))
-            RoundIconButton(symbol: "minus", label: "少一分鐘") { model.adjustCountdown(by: -1) }
-            RoundIconButton(symbol: "plus", label: "多一分鐘") { model.adjustCountdown(by: 1) }
+            RoundIconButton(symbol: "minus", label: tr("少一分鐘", "One minute less")) { model.adjustCountdown(by: -1) }
+            RoundIconButton(symbol: "plus", label: tr("多一分鐘", "One minute more")) { model.adjustCountdown(by: 1) }
         }
     }
 }
@@ -151,9 +151,9 @@ private struct PomodoroSettings: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            MiniStepper(title: "專注", value: $preferences.focusMinutes, unit: "分", range: 5...120, step: 5)
-            MiniStepper(title: "休息", value: $preferences.shortBreakMinutes, unit: "分", range: 1...30, step: 1)
-            MiniStepper(title: "輪數", value: $preferences.pomodoroRounds, unit: "輪", range: 1...12, step: 1)
+            MiniStepper(title: tr("專注", "Focus"), value: $preferences.focusMinutes, unit: tr("分", "min"), range: 5...120, step: 5)
+            MiniStepper(title: tr("休息", "Break"), value: $preferences.shortBreakMinutes, unit: tr("分", "min"), range: 1...30, step: 1)
+            MiniStepper(title: tr("輪數", "Rounds"), value: $preferences.pomodoroRounds, unit: tr("輪", ""), range: 1...12, step: 1)
         }
         .frame(height: 22)
     }
@@ -172,14 +172,14 @@ private struct MiniStepper: View {
             Text(title)
                 .font(.system(size: 11))
                 .foregroundStyle(.white.opacity(0.55))
-            RoundIconButton(symbol: "minus", label: "減少\(title)") {
+            RoundIconButton(symbol: "minus", label: tr("減少\(title)", "Decrease \(title)")) {
                 value = max(range.lowerBound, value - step)
             }
             .disabled(value <= range.lowerBound)
-            Text("\(value)\(unit)")
+            Text(unit.isEmpty ? "\(value)" : tr("\(value)\(unit)", "\(value) \(unit)"))
                 .font(.system(size: 12, weight: .semibold).monospacedDigit())
                 .frame(minWidth: 34)
-            RoundIconButton(symbol: "plus", label: "增加\(title)") {
+            RoundIconButton(symbol: "plus", label: tr("增加\(title)", "Increase \(title)")) {
                 value = min(range.upperBound, value + step)
             }
             .disabled(value >= range.upperBound)
@@ -195,7 +195,7 @@ private struct TimerControls: View {
             Button {
                 model.toggle()
             } label: {
-                Label(model.isRunning ? "暫停" : (model.runState == .idle ? "開始" : "繼續"),
+                Label(model.isRunning ? tr("暫停", "Pause") : (model.runState == .idle ? tr("開始", "Start") : tr("繼續", "Resume")),
                       systemImage: model.isRunning ? "pause.fill" : "play.fill")
                     .font(.system(size: 12, weight: .semibold))
                     .padding(.horizontal, 14)
@@ -206,12 +206,12 @@ private struct TimerControls: View {
             }
             .buttonStyle(.plain)
 
-            PillButton(title: "重設", isSelected: false) { model.reset() }
+            PillButton(title: tr("重設", "Reset"), isSelected: false) { model.reset() }
                 .disabled(model.runState == .idle)
                 .opacity(model.runState == .idle ? 0.4 : 1)
 
             if model.mode == .pomodoro {
-                PillButton(title: "跳過", isSelected: false) { model.skipPhase() }
+                PillButton(title: tr("跳過", "Skip"), isSelected: false) { model.skipPhase() }
             }
         }
     }

@@ -178,37 +178,43 @@ extension AppServices {
             battery: HeadphoneBattery(left: 82, right: 79, caseLevel: 45)
         )
         return [
-            DebugSimulation(title: "插上電源") { island.post(IslandEvent(kind: .charging(level: 76))) },
-            DebugSimulation(title: "拔掉電源") { island.post(IslandEvent(kind: .unplugged(level: 76))) },
-            DebugSimulation(title: "充飽電") { island.post(IslandEvent(kind: .fullyCharged)) },
-            DebugSimulation(title: "低電量 10%") { island.post(IslandEvent(kind: .lowBattery(level: 10))) },
-            DebugSimulation(title: "AirPods 連線") { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: true))) },
-            DebugSimulation(title: "AirPods 中斷") { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: false))) },
-            DebugSimulation(title: "計時結束") {
-                island.post(IslandEvent(kind: .timerFinished(title: "專注時間結束", subtitle: "休息 5 分鐘吧")))
+            DebugSimulation(title: tr("插上電源", "Plug In")) { island.post(IslandEvent(kind: .charging(level: 76))) },
+            DebugSimulation(title: tr("拔掉電源", "Unplug")) { island.post(IslandEvent(kind: .unplugged(level: 76))) },
+            DebugSimulation(title: tr("充飽電", "Fully Charged")) { island.post(IslandEvent(kind: .fullyCharged)) },
+            DebugSimulation(title: tr("低電量 10%", "Low Battery 10%")) { island.post(IslandEvent(kind: .lowBattery(level: 10))) },
+            DebugSimulation(title: tr("AirPods 連線", "AirPods Connected")) { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: true))) },
+            DebugSimulation(title: tr("AirPods 中斷", "AirPods Disconnected")) { island.post(IslandEvent(kind: .bluetooth(device: airPods, connected: false))) },
+            DebugSimulation(title: tr("計時結束", "Timer Finished")) {
+                island.post(IslandEvent(kind: .timerFinished(
+                    title: tr("專注時間結束", "Focus time's over"),
+                    subtitle: tr("短休息 5 分鐘吧", "Time for a 5-minute short break")
+                )))
             },
-            DebugSimulation(title: "假的正在播放") { nowPlaying.apply(.debugSample) },
-            DebugSimulation(title: "計時結束（含提示音）") { [self] in
+            DebugSimulation(title: tr("假的正在播放", "Fake Now Playing")) { nowPlaying.apply(.debugSample) },
+            DebugSimulation(title: tr("計時結束（含提示音）", "Timer Finished (with Sound)")) { [self] in
                 timerAlert.play(sound: preferences.timerSound, pausingMusic: preferences.timerPausesMusic)
-                island.post(IslandEvent(kind: .timerFinished(title: "時間到！", subtitle: "1 分鐘計時結束")))
+                island.post(IslandEvent(kind: .timerFinished(
+                    title: tr("時間到！", "Time's up!"),
+                    subtitle: tr("1 分鐘計時結束", "1-minute timer finished")
+                )))
             },
-            DebugSimulation(title: "音量 60%") { island.post(IslandEvent(kind: .volume(level: 60, muted: false))) },
-            DebugSimulation(title: "靜音") { island.post(IslandEvent(kind: .volume(level: 60, muted: true))) },
-            DebugSimulation(title: "專注模式開啟") { island.post(IslandEvent(kind: .focus(.debugSample, active: true))) },
-            DebugSimulation(title: "專注模式關閉") { island.post(IslandEvent(kind: .focus(.debugSample, active: false))) },
-            DebugSimulation(title: "麥克風使用中") { [microphone] in
+            DebugSimulation(title: tr("音量 60%", "Volume 60%")) { island.post(IslandEvent(kind: .volume(level: 60, muted: false))) },
+            DebugSimulation(title: tr("靜音", "Mute")) { island.post(IslandEvent(kind: .volume(level: 60, muted: true))) },
+            DebugSimulation(title: tr("專注模式開啟", "Focus On")) { island.post(IslandEvent(kind: .focus(.debugSample, active: true))) },
+            DebugSimulation(title: tr("專注模式關閉", "Focus Off")) { island.post(IslandEvent(kind: .focus(.debugSample, active: false))) },
+            DebugSimulation(title: tr("麥克風使用中", "Microphone In Use")) { [microphone] in
                 microphone.debugSetActive(true, apps: [.debugSample])
                 island.post(IslandEvent(kind: .sensor(.microphone, app: .debugSample, active: true)))
             },
-            DebugSimulation(title: "麥克風停止") { [microphone] in
+            DebugSimulation(title: tr("麥克風停止", "Microphone Stopped")) { [microphone] in
                 microphone.debugSetActive(false, apps: [])
                 island.post(IslandEvent(kind: .sensor(.microphone, app: .debugSample, active: false)))
             },
-            DebugSimulation(title: "螢幕錄影開始") { island.post(IslandEvent(kind: .sensor(.screenRecording, app: nil, active: true))) },
-            DebugSimulation(title: "拷貝文字") {
-                island.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: "會議改到週四下午三點", image: nil))))
+            DebugSimulation(title: tr("螢幕錄影開始", "Screen Recording Started")) { island.post(IslandEvent(kind: .sensor(.screenRecording, app: nil, active: true))) },
+            DebugSimulation(title: tr("拷貝文字", "Copy Text")) {
+                island.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: tr("會議改到週四下午三點", "Meeting moved to Thursday 3 PM"), image: nil))))
             },
-            DebugSimulation(title: "開始 1 分鐘計時") { [timer] in
+            DebugSimulation(title: tr("開始 1 分鐘計時", "Start 1-Minute Timer")) { [timer] in
                 timer.setCountdown(minutes: 1)
                 timer.start()
             },

@@ -26,6 +26,10 @@ cp "$BIN_DIR/$APP_NAME" "$CONTENTS/MacOS/$APP_NAME"
 if [[ -f Resources/AppIcon.icns ]]; then
   cp Resources/AppIcon.icns "$CONTENTS/Resources/AppIcon.icns"
 fi
+# 各語言的 App 名稱與權限說明（InfoPlist.strings）
+for lproj in Resources/*.lproj(N); do
+  ditto "$lproj" "$CONTENTS/Resources/${lproj:t}"
+done
 
 # 全系統「正在播放」用的 mediaremote-adapter（沒有 vendored 原始碼時略過，App 會退回 Music/Spotify 模式）
 if [[ -d Vendor/mediaremote-adapter ]]; then

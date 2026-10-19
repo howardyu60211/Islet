@@ -14,13 +14,13 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .general: "一般"
-        case .notifications: "通知"
-        case .music: "音樂"
-        case .shelf: "檔案櫃"
-        case .clipboard: "剪貼簿"
-        case .clock: "時鐘"
-        case .about: "關於"
+        case .general: tr("一般", "General")
+        case .notifications: tr("通知", "Notifications")
+        case .music: tr("音樂", "Music")
+        case .shelf: tr("檔案櫃", "Shelf")
+        case .clipboard: tr("剪貼簿", "Clipboard")
+        case .clock: tr("時鐘", "Clock")
+        case .about: tr("關於", "About")
         }
     }
 
@@ -50,13 +50,13 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 
     var summary: String {
         switch self {
-        case .general: "啟動、展開方式與動態島的顯示。"
-        case .notifications: "電源、耳機、音量等系統狀態改變時，在瀏海跳出提示。"
-        case .music: "在動態島顯示任何 App 正在播放的音樂並控制播放。"
-        case .shelf: "把檔案拖到瀏海暫放，之後再拖出、打開或用 AirDrop 傳送。"
-        case .clipboard: "記錄最近拷貝的文字、連結、圖片與檔案，點一下就能再拷貝。"
-        case .clock: "計時器與番茄鐘，時間到時在瀏海提示並播放提示音。"
-        case .about: "版本與授權資訊。"
+        case .general: tr("語言、啟動、展開方式與動態島的顯示。", "Language, startup, how the island expands, and whether it’s shown.")
+        case .notifications: tr("電源、耳機、音量等系統狀態改變時，在瀏海跳出提示。", "Alerts in the notch when power, headphones, volume and other system states change.")
+        case .music: tr("在動態島顯示任何 App 正在播放的音樂並控制播放。", "Shows what any app is playing on the island and lets you control it.")
+        case .shelf: tr("把檔案拖到瀏海暫放，之後再拖出、打開或用 AirDrop 傳送。", "Drop files on the notch to hold them, then drag them out, open them or AirDrop them later.")
+        case .clipboard: tr("記錄最近拷貝的文字、連結、圖片與檔案，點一下就能再拷貝。", "Keeps recently copied text, links, images and files; click one to copy it again.")
+        case .clock: tr("計時器與番茄鐘，時間到時在瀏海提示並播放提示音。", "A timer and Pomodoro that alert you in the notch with a sound when time’s up.")
+        case .about: tr("版本與授權資訊。", "Version and license information.")
         }
     }
 }
@@ -153,6 +153,25 @@ private struct SettingsHeader: View {
             }
             .padding(.vertical, 4)
         }
+    }
+}
+
+/// Section 下方的說明文字。Form 的 footer 預設靠右，換行後第二行會貼到右邊，所以固定靠左。
+struct SettingsFooter: View {
+    let text: String
+
+    init(_ text: String) {
+        self.text = text
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            // 跟 Section 標題與列內的文字對齊
+            .padding(.horizontal, 10)
     }
 }
 

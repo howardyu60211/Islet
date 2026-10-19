@@ -23,7 +23,7 @@ struct CompactView: View {
         switch activity {
         case .charging:
             Label {
-                Text("充電中")
+                Text(tr("充電中", "Charging"))
             } icon: {
                 Image(systemName: "bolt.fill")
             }
@@ -31,7 +31,7 @@ struct CompactView: View {
             .foregroundStyle(.green)
         case .unplugged:
             Label {
-                Text("使用電池")
+                Text(tr("使用電池", "On Battery"))
             } icon: {
                 Image(systemName: "powerplug.portrait")
             }
@@ -59,7 +59,7 @@ struct CompactView: View {
             .foregroundStyle(active ? mode.tint : .white.opacity(0.6))
         case .sensor(let sensor, _, let active):
             Label {
-                Text(sensor.title)
+                Text(sensor.compactTitle)
             } icon: {
                 Image(systemName: sensor.symbol)
             }
@@ -96,14 +96,14 @@ struct CompactView: View {
         case .volume(let level, let muted):
             HStack(spacing: 6) {
                 VolumeGlyph(level: level, muted: muted)
-                Text(muted ? "靜音" : "\(level)%")
+                Text(muted ? tr("靜音", "Muted") : "\(level)%")
                     .font(.system(size: 12, weight: .semibold).monospacedDigit())
                     .foregroundStyle(muted ? .white.opacity(0.6) : .white)
                     .contentTransition(.numericText(value: Double(level)))
                     .frame(width: 34, alignment: .trailing)
             }
         case .focus(let mode, let active):
-            Text(active ? "開啟" : "關閉")
+            Text(active ? tr("開啟", "On") : tr("關閉", "Off"))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(active ? mode.tint : .white.opacity(0.6))
         case .sensor(let sensor, let app, let active):
@@ -114,7 +114,7 @@ struct CompactView: View {
                         .frame(width: 16, height: 16)
                         .help(app?.name ?? "")
                 }
-                Text(active ? "使用中" : "已停止")
+                Text(active ? tr("使用中", "In Use") : tr("已停止", "Stopped"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(active ? sensor.tint : .white.opacity(0.6))
             }
@@ -151,7 +151,7 @@ private struct LiveActivitySide: View {
                     Image(systemName: sensor.symbol)
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(sensor.tint)
-                        .help("\(sensor.title)使用中")
+                        .help(tr("\(sensor.title)使用中", "\(sensor.title) in use"))
                 }
                 if sensors.contains(.microphone), let app = island.microphone.apps.first, let icon = app.icon {
                     Image(nsImage: icon)
@@ -174,7 +174,7 @@ private struct ClipboardCompactLeading: View {
 
     var body: some View {
         Label {
-            Text("剪貼簿")
+            Text(tr("剪貼簿", "Copied"))
         } icon: {
             Image(systemName: "doc.on.clipboard.fill")
                 .symbolEffect(.bounce.up, value: bounce)
@@ -219,7 +219,7 @@ private struct ClipboardCompactTrailing: View {
             }
         case .files(let count):
             Label {
-                Text(count > 1 ? "\(count) 個檔案" : summary.excerpt)
+                Text(count > 1 ? tr("\(count) 個檔案", "\(count) files") : summary.excerpt)
             } icon: {
                 Image(systemName: "doc.fill")
             }
@@ -264,7 +264,7 @@ struct VolumeGlyph: View {
                 .frame(width: 36 * fraction)
         }
         .frame(width: 36, height: 6)
-        .accessibilityLabel(muted ? "靜音" : "音量 \(level)%")
+        .accessibilityLabel(muted ? tr("靜音", "Muted") : tr("音量 \(level)%", "Volume \(level)%"))
     }
 }
 
@@ -307,6 +307,7 @@ struct CompactLabelStyle: LabelStyle {
             configuration.title
                 .font(.system(size: 12, weight: .semibold))
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
         }
     }
 }
@@ -371,30 +372,33 @@ struct BannerView: View {
 
     private var title: String {
         switch event.kind {
-        case .charging: "充電中"
-        case .fullyCharged: "已充飽電"
-        case .unplugged: "使用電池"
-        case .lowBattery: "電量不足"
+        case .charging: tr("充電中", "Charging")
+        case .fullyCharged: tr("已充飽電", "Fully Charged")
+        case .unplugged: tr("使用電池", "On Battery")
+        case .lowBattery: tr("電量不足", "Low Battery")
         case .bluetooth(let device, _): device.name
         case .timerFinished(let title, _): title
-        case .volume: "音量"
+        case .volume: tr("音量", "Volume")
         case .focus(let mode, _): mode.name
         case .sensor(let sensor, _, _): sensor.title
-        case .clipboard: "剪貼簿"
+        case .clipboard: tr("剪貼簿", "Clipboard")
         }
     }
 
     private var subtitle: String? {
         switch event.kind {
         case .charging: nil
-        case .unplugged: "已拔除電源"
-        case .fullyCharged: "可以拔掉電源了"
-        case .lowBattery(let level): "剩下 \(level)%，請接上電源"
-        case .bluetooth(_, let connected): connected ? "已連線" : "已中斷連線"
+        case .unplugged: tr("已拔除電源", "Unplugged")
+        case .fullyCharged: tr("可以拔掉電源了", "You can unplug now")
+        case .lowBattery(let level): tr("剩下 \(level)%，請接上電源", "\(level)% left — plug in soon")
+        case .bluetooth(_, let connected): connected ? tr("已連線", "Connected") : tr("已中斷連線", "Disconnected")
         case .timerFinished(_, let subtitle): subtitle
-        case .volume(let level, let muted): muted ? "靜音" : "\(level)%"
-        case .focus(_, let active): active ? "開啟" : "關閉"
-        case .sensor(_, let app, let active): active ? "\(app?.name ?? "有 App") 正在使用" : "已停止使用"
+        case .volume(let level, let muted): muted ? tr("靜音", "Muted") : "\(level)%"
+        case .focus(_, let active): active ? tr("開啟", "On") : tr("關閉", "Off")
+        case .sensor(_, let app, let active):
+            active
+                ? tr("\(app?.name ?? "有 App") 正在使用", "In use by \(app?.name ?? "an app")")
+                : tr("已停止使用", "No longer in use")
         case .clipboard(let summary): summary.excerpt
         }
     }
@@ -464,7 +468,7 @@ struct BatteryGlyph: View {
                 .fill(.white.opacity(0.45))
                 .frame(width: 1.5, height: 4)
         }
-        .accessibilityLabel("電量 \(level)%")
+        .accessibilityLabel(tr("電量 \(level)%", "Battery \(level)%"))
     }
 }
 
@@ -484,7 +488,7 @@ struct HeadphoneBatteryView: View {
                 item(label: "R", level: right)
             }
             if let caseLevel = battery.caseLevel {
-                item(label: "盒", level: caseLevel)
+                item(label: tr("盒", "C"), level: caseLevel)
             }
         }
     }

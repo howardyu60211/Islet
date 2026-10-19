@@ -3,6 +3,9 @@ import Testing
 @testable import DynamicIslandKit
 
 struct FocusMonitorTests {
+    // 這裡檢查的是中文字串，不管跑測試的電腦是什麼語言。
+    init() { AppLanguage.current = .traditionalChinese }
+
     private let assertions = Data("""
     {"data":[{"storeAssertionRecords":[
       {"assertionDetails":{"assertionDetailsModeIdentifier":"com.apple.focus.work"},"assertionStartDateTimestamp":100},

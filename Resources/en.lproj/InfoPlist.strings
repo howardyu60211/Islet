@@ -1,0 +1,4 @@
+/* App 名稱與權限說明（英文） */
+"CFBundleDisplayName" = "DynamicIsland";
+"NSBluetoothAlwaysUsageDescription" = "DynamicIsland shows an alert when Bluetooth headphones connect or disconnect.";
+"NSAppleEventsUsageDescription" = "DynamicIsland needs to read and control playback in Music or Spotify.";
