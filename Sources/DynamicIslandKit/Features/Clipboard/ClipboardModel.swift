@@ -49,7 +49,7 @@ final class ClipboardModel {
     /// 超過這個大小的內容（例如很大的圖片）不記錄。
     static let maxBytes = 20 * 1024 * 1024
     /// 整個紀錄最多佔用的記憶體；超過就從最舊的開始丟（最新的一筆一定保留）。
-    static let maxTotalBytes = 64 * 1024 * 1024
+    static let maxTotalBytes = 32 * 1024 * 1024
 
     /// 密碼管理器等 App 用來標示「不要記錄」的格式（http://nspasteboard.org）。
     static let ignoredTypes: Set<String> = [

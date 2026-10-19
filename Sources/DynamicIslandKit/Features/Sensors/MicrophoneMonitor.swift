@@ -16,6 +16,9 @@ final class MicrophoneMonitor {
 
     @ObservationIgnored private var listListener: AudioObjectPropertyListenerBlock?
     @ObservationIgnored private var objectListeners: [AudioObjectID: AudioObjectPropertyListenerBlock] = [:]
+    /// 輪詢前先看的輸入裝置（nil 表示裝置清單變了，要重新找）。
+    @ObservationIgnored private var inputDevices: [AudioObjectID]?
+    @ObservationIgnored private var deviceListListener: AudioObjectPropertyListenerBlock?
     @ObservationIgnored private var evaluateTask: Task<Void, Never>?
     @ObservationIgnored private var pollTimer: Timer?
     /// 第一次讀到的狀態不提示（啟動時已經在錄音的不算「開始」）。
@@ -23,7 +26,7 @@ final class MicrophoneMonitor {
     @ObservationIgnored private let logger = Logger(subsystem: "com.howardyu.DynamicIsland", category: "Microphone")
 
     private static var system: AudioObjectID { AudioObjectID(kAudioObjectSystemObject) }
-    /// 通知沒來時的備援輪詢間隔（讀二十幾個屬性，很便宜）。
+    /// 通知沒來時的備援輪詢間隔（平常只讀幾個輸入裝置的屬性，很便宜）。
     private static let pollInterval: TimeInterval = 1
 
     private static var usesProcessList: Bool {
@@ -40,6 +43,16 @@ final class MicrophoneMonitor {
         listListener = block
         isPrimed = false
         refreshObjects()
+
+        if Self.usesProcessList {
+            var devicesAddress = Self.address(kAudioHardwarePropertyDevices)
+            let devicesBlock: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+                MainActor.assumeIsolated { self?.inputDevices = nil }
+            }
+            AudioObjectAddPropertyListenerBlock(Self.system, &devicesAddress, .main, devicesBlock)
+            deviceListListener = devicesBlock
+        }
+        inputDevices = nil
 
         let timer = Timer(timeInterval: Self.pollInterval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
@@ -58,6 +71,12 @@ final class MicrophoneMonitor {
             AudioObjectRemovePropertyListenerBlock(Self.system, &address, .main, listListener)
         }
         listListener = nil
+        if let deviceListListener {
+            var address = Self.address(kAudioHardwarePropertyDevices)
+            AudioObjectRemovePropertyListenerBlock(Self.system, &address, .main, deviceListListener)
+        }
+        deviceListListener = nil
+        inputDevices = nil
         for (id, block) in objectListeners {
             var address = Self.runningAddress
             AudioObjectRemovePropertyListenerBlock(id, &address, .main, block)
@@ -102,10 +121,20 @@ final class MicrophoneMonitor {
     /// 狀態跟上次不同時才判斷（一樣經過 scheduleEvaluate 的延遲，短暫開關不會閃一下）。
     private func poll() {
         guard isPrimed else { return }
+        // 沒在錄音、輸入裝置也都沒在跑時不用逐一查每個行程（省下二十幾次跟 coreaudiod 的往返）
+        if !isActive, Self.usesProcessList, !isAnyInputDeviceRunning() { return }
         let (active, users) = Self.currentState()
         if active != isActive || users != apps {
             scheduleEvaluate()
         }
+    }
+
+    /// 有沒有輸入裝置正在執行（不管是哪個 App 在用）。同時有輸出的裝置（例如 AirPods）放音樂時也會是 true，這時就照常逐一查。
+    private func isAnyInputDeviceRunning() -> Bool {
+        let devices = inputDevices ?? Self.objectList(of: Self.system, Self.address(kAudioHardwarePropertyDevices))
+            .filter { Self.hasStreams($0, kAudioObjectPropertyScopeInput) }
+        inputDevices = devices
+        return devices.contains { (Self.value(of: $0, Self.address(kAudioDevicePropertyDeviceIsRunningSomewhere)) as UInt32? ?? 0) != 0 }
     }
 
     private func evaluate() {
