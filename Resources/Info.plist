@@ -4,11 +4,6 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>zh-Hant</string>
-	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Islet</string>
 	<key>CFBundleExecutable</key>
@@ -19,33 +14,38 @@
 	<string>com.howardyu.Islet</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>zh-Hant</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>Islet</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
+	<string>0.2.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Islet 需要讀取並控制 Music 或 Spotify 的播放狀態。</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Islet 會在藍牙耳機連線或中斷時顯示提示。</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>SUFeedURL</key>
 	<string>https://github.com/howardyu60211/Islet/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>8PYjELBJ7tI//hLh9h1VmlVHaPfdh07X4TDUMZ+Chso=</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Islet 會在藍牙耳機連線或中斷時顯示提示。</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Islet 需要讀取並控制 Music 或 Spotify 的播放狀態。</string>
 </dict>
 </plist>
