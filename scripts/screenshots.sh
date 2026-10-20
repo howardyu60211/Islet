@@ -36,7 +36,7 @@ for language in en zh-Hant; do
   expanded 06-expanded-media              expanded-media
   expanded 07-expanded-shelf              expanded-shelf
   expanded 08-expanded-timer              expanded-timer
-  expanded 14c-expanded-clipboard-wheel   expanded-clipboard
+  expanded 14d-expanded-clipboard-pinned  expanded-clipboard
   crop 17-expanded-background-apps app-tray 90 1320 0 60
 
   compact 09-compact-now-playing          compact-now-playing

@@ -126,6 +126,9 @@ enum SnapshotRenderer {
             Scenario(name: "07b-expanded-shelf-empty") { $0.expand(tab: .shelf) },
             Scenario(name: "07c-shelf-drop-zones") { $0.debugShowDropZones() },
             Scenario(name: "08-expanded-timer") { island in
+                // 計時器在背景跑，它的模式按鈕會顯示剩餘時間
+                island.timer.setCountdown(minutes: 10)
+                island.timer.start()
                 island.timer.setMode(.pomodoro)
                 island.timer.finish()
                 island.timer.finish()
