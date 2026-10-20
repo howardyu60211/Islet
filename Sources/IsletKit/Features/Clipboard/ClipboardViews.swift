@@ -16,8 +16,6 @@ struct ClipboardPanelView: View {
                         .frame(width: 210)
                     if let item = island.selectedClipboardItem {
                         ClipboardPreview(item: item, clipboard: clipboard)
-                            .id(item.id)
-                            .transition(.opacity.animation(.smooth(duration: 0.15)))
                     }
                 }
             }
@@ -49,7 +47,9 @@ private struct ClipboardWheel: View {
                         .foregroundStyle(.white.opacity(0.4))
                         .padding(.trailing, 8)
                 }
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+            // 離中間 3 列以外的已經完全透明（見 WheelRowEffect），不用畫；紀錄可能有上百筆
+            let visible = items.enumerated().filter { abs(CGFloat($0.offset) - position) < 4.5 }
+            ForEach(visible, id: \.element.id) { index, item in
                 WheelRow(item: item, clipboard: island.clipboard, isSelected: index == selected)
                     .padding(.trailing, 34)
                     .frame(height: WheelTracker.rowHeight)
@@ -125,6 +125,12 @@ private struct WheelRow: View {
                 .foregroundStyle(.white.opacity(isSelected ? 1 : 0.8))
                 .lineLimit(1)
                 .truncationMode(.tail)
+            if item.isPinned {
+                Image(systemName: "pin.fill")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .accessibilityLabel(tr("已釘選", "Pinned"))
+            }
             Spacer(minLength: 0)
         }
         .padding(.leading, 8)
@@ -177,11 +183,16 @@ private struct ClipboardPreview: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            content
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .contentShape(Rectangle())
-                .onTapGesture { clipboard.copy(item) }
-                .help(tr("點一下複製", "Click to copy"))
+            // 換選取時只有內容換掉、淡入淡出；疊在 ZStack 裡，新舊交接時不會擠動下面的按鈕列
+            ZStack(alignment: .topLeading) {
+                content
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .id(item.id)
+                    .transition(.opacity.animation(.smooth(duration: 0.15)))
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { clipboard.copy(item) }
+            .help(tr("點一下複製", "Click to copy"))
             footer
         }
         .padding(10)
@@ -205,6 +216,8 @@ private struct ClipboardPreview: View {
         .animation(.smooth(duration: 0.2), value: isCopied)
         .onHover { isHovering = $0 }
         .contextMenu { ClipboardItemMenu(item: item, clipboard: clipboard) }
+        // 卡片和按鈕列不跟著滾輪的彈簧動畫，換選取時原地更新
+        .animation(nil, value: item.id)
     }
 
     @ViewBuilder
@@ -274,6 +287,13 @@ private struct ClipboardPreview: View {
                 .foregroundStyle(.white.opacity(0.45))
                 .lineLimit(1)
             Spacer(minLength: 6)
+            RoundIconButton(
+                symbol: item.isPinned ? "pin.slash" : "pin",
+                label: item.isPinned ? tr("取消釘選", "Unpin") : tr("釘選（不會被自動刪掉）", "Pin (Never Removed Automatically)")
+            ) {
+                withAnimation(.smooth(duration: 0.2)) { clipboard.togglePin(item) }
+            }
+            .help(item.isPinned ? tr("取消釘選", "Unpin") : tr("釘選：排在最上面，不會被自動刪掉", "Pin: keep it at the top and never remove it automatically"))
             RoundIconButton(symbol: "trash", label: tr("從紀錄中移除", "Remove from History")) {
                 withAnimation(.smooth(duration: 0.2)) { clipboard.remove(item) }
             }
@@ -302,6 +322,9 @@ private struct ClipboardItemMenu: View {
 
     var body: some View {
         Button(tr("拷貝", "Copy")) { clipboard.copy(item) }
+        Button(item.isPinned ? tr("取消釘選", "Unpin") : tr("釘選", "Pin")) {
+            withAnimation(.smooth(duration: 0.2)) { clipboard.togglePin(item) }
+        }
         if case .files = item.preview {
             Button(tr("在 Finder 中顯示", "Show in Finder")) { clipboard.revealInFinder(item) }
         }
@@ -312,9 +335,10 @@ private struct ClipboardItemMenu: View {
         Button(tr("從紀錄中移除", "Remove from History")) {
             withAnimation(.smooth(duration: 0.2)) { clipboard.remove(item) }
         }
-        Button(tr("清空所有紀錄", "Clear All History")) {
+        Button(tr("清除紀錄（保留釘選）", "Clear History (Keep Pinned)")) {
             withAnimation(.smooth(duration: 0.2)) { clipboard.removeAll() }
         }
+        .disabled(clipboard.pinnedCount == clipboard.items.count)
     }
 }
 
@@ -355,7 +379,7 @@ private struct EmptyClipboardView: View {
             Text(tr("複製的文字、連結、圖片和檔案會出現在這裡", "Text, links, images and files you copy appear here"))
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(.white.opacity(0.7))
-            Text(tr("點一下就能再複製一次；結束 App 時紀錄會清除", "Click one to copy it again. History is cleared when the app quits"))
+            Text(tr("點一下就能再複製一次；紀錄在結束 App 或重新開機後還會在", "Click one to copy it again. History stays after quitting or restarting"))
                 .font(.system(size: 10))
                 .foregroundStyle(.white.opacity(0.35))
         }

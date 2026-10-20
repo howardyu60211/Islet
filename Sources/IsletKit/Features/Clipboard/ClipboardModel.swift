@@ -1,8 +1,9 @@
 import AppKit
+import CryptoKit
 import Observation
 
 /// 剪貼簿紀錄：記下最近複製的文字、連結、圖片與檔案，點一下就能再複製一次。
-/// 只存在記憶體裡，結束 App 就清掉；密碼管理器標示為「隱藏」的內容不會記錄。
+/// 有給 store 時存在磁碟上，結束 App、更新、重新開機後都還在；密碼管理器標示為「隱藏」的內容不會記錄。
 @Observable
 final class ClipboardModel {
     struct Item: Identifiable {
@@ -13,21 +14,32 @@ final class ClipboardModel {
             case files([URL])
         }
 
-        let id = UUID()
+        let id: UUID
         let preview: Preview
         /// 原本剪貼簿上的每一筆內容與所有格式，再複製時原樣放回去（保留格式、圖片原檔）。
-        let representations: [[NSPasteboard.PasteboardType: Data]]
+        /// 從磁碟讀回來的是 nil：留在磁碟上，要拷貝時才讀。
+        let representations: [[NSPasteboard.PasteboardType: Data]]?
+        /// 原始內容的大小（所有格式的資料加起來）。
+        let byteCount: Int
         let sourceApp: String?
         let sourceBundleIdentifier: String?
         let date: Date
         /// 判斷是否重複用。
         let signature: String
+        /// 釘選的排在最前面，不算進筆數上限、也不會被自動刪掉。
+        var isPinned = false
 
-        /// 佔用的記憶體（所有格式的資料加起來）。
-        var byteCount: Int {
-            representations.reduce(0) { total, representation in
+        init(preview: Preview, representations: [[NSPasteboard.PasteboardType: Data]], sourceApp: String?, sourceBundleIdentifier: String?, date: Date, signature: String) {
+            id = UUID()
+            self.preview = preview
+            self.representations = representations
+            byteCount = representations.reduce(0) { total, representation in
                 total + representation.values.reduce(0) { $0 + $1.count }
             }
+            self.sourceApp = sourceApp
+            self.sourceBundleIdentifier = sourceBundleIdentifier
+            self.date = date
+            self.signature = signature
         }
 
         /// 收合時動畫用的摘要。
@@ -45,10 +57,12 @@ final class ClipboardModel {
         }
     }
 
-    static let maxItems = 30
+    /// 設定裡可以選的保留筆數（不含釘選的）。
+    static let historyLimits = [30, 50, 100, 200]
+    static let defaultHistoryLimit = 50
     /// 超過這個大小的內容（例如很大的圖片）不記錄。
     static let maxBytes = 20 * 1024 * 1024
-    /// 整個紀錄最多佔用的記憶體；超過就從最舊的開始丟（最新的一筆一定保留）。
+    /// 沒釘選的紀錄最多佔用的空間；超過就從最舊的開始丟（最新的一筆一定保留，釘選的不算）。
     static let maxTotalBytes = 32 * 1024 * 1024
 
     /// 密碼管理器等 App 用來標示「不要記錄」的格式（http://nspasteboard.org）。
@@ -63,8 +77,14 @@ final class ClipboardModel {
         "net.antelle.keeweb",
     ]
 
-    /// 最新的在前面。
-    private(set) var items: [Item] = []
+    /// 釘選的，照釘選的先後排。
+    private(set) var pinned: [Item] = []
+    /// 沒釘選的紀錄，最新的在前面。只有這些會被自動刪掉。
+    private(set) var history: [Item] = []
+    /// 最多保留幾筆沒釘選的紀錄；調低時馬上刪掉多出來的舊紀錄。
+    @ObservationIgnored var historyLimit = ClipboardModel.defaultHistoryLimit {
+        didSet { updateItems(trim) }
+    }
     /// 剛從紀錄裡複製的項目（顯示「已複製」）。
     private(set) var recentlyCopiedID: UUID?
     private(set) var appIcons: [String: NSImage] = [:]
@@ -73,16 +93,31 @@ final class ClipboardModel {
     @ObservationIgnored var onCapture: (Item) -> Void = { _ in }
 
     @ObservationIgnored private let pasteboard: NSPasteboard
+    @ObservationIgnored private let store: ClipboardStore?
     @ObservationIgnored private var changeCount: Int
     @ObservationIgnored private var timer: Timer?
     @ObservationIgnored private var copiedResetTask: Task<Void, Never>?
+    /// 找不到的 App（例如已經刪掉），不要每筆都再查一次。
+    @ObservationIgnored private var missingAppIcons: Set<String> = []
 
     /// 剪貼簿沒有變更通知，只能定時檢查 changeCount（很便宜）。
     private static let pollInterval: TimeInterval = 0.5
 
-    init(pasteboard: NSPasteboard = .general) {
+    /// store 是 nil 時只存在記憶體裡（測試、截圖用）。
+    /// historyLimit 要在這裡給，讀進來的紀錄才會照使用者設的筆數修剪（之後再設會先用預設值剪掉多的）。
+    init(pasteboard: NSPasteboard = .general, store: ClipboardStore? = nil, historyLimit: Int = ClipboardModel.defaultHistoryLimit) {
         self.pasteboard = pasteboard
+        self.store = store
+        self.historyLimit = historyLimit
         changeCount = pasteboard.changeCount
+        if let store {
+            let snapshot = store.load()
+            pinned = snapshot.pinned.compactMap { Item(record: $0, isPinned: true) }
+            history = snapshot.history.compactMap { Item(record: $0, isPinned: false) }
+            // 磁碟上的可能超過上限（例如索引沒寫到而留下的檔案），讀進來先剪一次
+            updateItems(trim)
+            items.forEach(loadAppIcon(for:))
+        }
     }
 
     func start() {
@@ -98,9 +133,11 @@ final class ClipboardModel {
         self.timer = timer
     }
 
+    /// 停止記錄，並等還在背景寫的紀錄都存到磁碟（結束 App 時剛拷貝的那筆才不會沒寫到，例如更新後重開）。
     func stop() {
         timer?.invalidate()
         timer = nil
+        store?.flush()
     }
 
     func checkForChanges(notify: Bool = true) {
@@ -108,6 +145,8 @@ final class ClipboardModel {
         changeCount = pasteboard.changeCount
         let source = NSWorkspace.shared.frontmostApplication
         guard let item = Self.capture(pasteboard, sourceApp: source?.localizedName, sourceBundleIdentifier: source?.bundleIdentifier) else { return }
+        // 啟動時剪貼簿上的內容如果已經在紀錄裡（例如更新後重開），保留原本的來源和時間
+        if !notify, items.contains(where: { $0.signature == item.signature }) { return }
         insert(item)
         if notify {
             onCapture(item)
@@ -116,10 +155,20 @@ final class ClipboardModel {
 
     // MARK: - 動作
 
-    /// 放回剪貼簿，並移到最前面。
+    /// 全部紀錄：釘選的在最前面，接著是一般紀錄。
+    var items: [Item] { pinned + history }
+
+    var pinnedCount: Int { pinned.count }
+
+    /// 放回剪貼簿，沒釘選的移到最前面。
     func copy(_ item: Item) {
+        guard let representations = item.representations ?? store?.representations(for: item.id) else {
+            // 原始內容在磁碟上不見了，這筆已經沒辦法再拷貝
+            remove(item)
+            return
+        }
         pasteboard.clearContents()
-        let pasteboardItems = item.representations.map { representation in
+        let pasteboardItems = representations.map { representation in
             let pasteboardItem = NSPasteboardItem()
             for (type, data) in representation {
                 pasteboardItem.setData(data, forType: type)
@@ -129,8 +178,8 @@ final class ClipboardModel {
         pasteboard.writeObjects(pasteboardItems)
         // 自己寫進去的不要再記一次
         changeCount = pasteboard.changeCount
-        if let index = items.firstIndex(where: { $0.id == item.id }), index > 0 {
-            items.insert(items.remove(at: index), at: 0)
+        if let index = history.firstIndex(where: { $0.id == item.id }), index > 0 {
+            updateItems { history.insert(history.remove(at: index), at: 0) }
         }
         recentlyCopiedID = item.id
         copiedResetTask?.cancel()
@@ -142,11 +191,34 @@ final class ClipboardModel {
     }
 
     func remove(_ item: Item) {
-        items.removeAll { $0.id == item.id }
+        updateItems {
+            pinned.removeAll { $0.id == item.id }
+            history.removeAll { $0.id == item.id }
+        }
     }
 
-    func removeAll() {
-        items.removeAll()
+    /// 釘選的移到釘選區最後面（緊鄰最新的紀錄）；取消釘選的放回一般紀錄的最前面。
+    func togglePin(_ item: Item) {
+        updateItems {
+            if let index = pinned.firstIndex(where: { $0.id == item.id }) {
+                var item = pinned.remove(at: index)
+                item.isPinned = false
+                history.insert(item, at: 0)
+                trim()
+            } else if let index = history.firstIndex(where: { $0.id == item.id }) {
+                var item = history.remove(at: index)
+                item.isPinned = true
+                pinned.append(item)
+            }
+        }
+    }
+
+    /// 清除紀錄；預設保留釘選的。
+    func removeAll(includingPinned: Bool = false) {
+        updateItems {
+            history.removeAll()
+            if includingPinned { pinned.removeAll() }
+        }
     }
 
     func revealInFinder(_ item: Item) {
@@ -157,18 +229,61 @@ final class ClipboardModel {
     // MARK: - 內部
 
     func insert(_ item: Item) {
-        items.removeAll { $0.signature == item.signature }
-        items.insert(item, at: 0)
-        if items.count > Self.maxItems {
-            items.removeLast(items.count - Self.maxItems)
+        // 已經釘選的內容又被拷貝一次：留在釘選區就好
+        guard !pinned.contains(where: { $0.signature == item.signature }) else { return }
+        updateItems {
+            history.removeAll { $0.signature == item.signature }
+            history.insert(item, at: 0)
+            trim()
         }
-        var total = items.reduce(0) { $0 + $1.byteCount }
-        while total > Self.maxTotalBytes, items.count > 1 {
-            total -= items.removeLast().byteCount
+        loadAppIcon(for: item)
+    }
+
+    /// 一般紀錄超過筆數或空間上限時從最舊的開始丟（最新的一筆一定保留）。
+    /// 釘選的不算，不然大的釘選項目會把一般紀錄擠光。
+    private func trim() {
+        if history.count > historyLimit {
+            history.removeLast(history.count - historyLimit)
         }
-        if let bundleID = item.sourceBundleIdentifier, appIcons[bundleID] == nil,
-           let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+        var total = history.reduce(0) { $0 + $1.byteCount }
+        while total > Self.maxTotalBytes, history.count > 1 {
+            total -= history.removeLast().byteCount
+        }
+    }
+
+    private func loadAppIcon(for item: Item) {
+        guard let bundleID = item.sourceBundleIdentifier, appIcons[bundleID] == nil, !missingAppIcons.contains(bundleID) else { return }
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
             appIcons[bundleID] = NSWorkspace.shared.icon(forFile: url.path).bitmapCopy(pointSize: 16)
+        } else {
+            missingAppIcons.insert(bundleID)
+        }
+    }
+
+    /// 改 pinned／history 一律走這裡，改完把差別寫到磁碟。
+    /// （不用 didSet：init 裡設值也會觸發，而且一個動作裡改好幾次就會寫好幾次。）
+    private func updateItems(_ change: () -> Void) {
+        let old = items
+        let oldPinnedCount = pinnedCount
+        change()
+        persist(from: old, oldPinnedCount: oldPinnedCount)
+    }
+
+    /// 把和 old 的差別寫到磁碟：新的存檔、不見的刪檔，順序或釘選變了就更新索引（不用重寫紀錄本身）。
+    private func persist(from old: [Item], oldPinnedCount: Int) {
+        guard let store else { return }
+        let items = items
+        let oldIDs = Set(old.map(\.id))
+        for item in items where !oldIDs.contains(item.id) {
+            if let record = item.record, let representations = item.representations {
+                store.save(record, representations: representations)
+            }
+        }
+        for id in oldIDs.subtracting(items.map(\.id)) {
+            store.delete(id)
+        }
+        if old.map(\.id) != items.map(\.id) || oldPinnedCount != pinnedCount {
+            store.saveIndex(order: items.map(\.id), pinnedCount: pinnedCount)
         }
     }
 
@@ -216,7 +331,9 @@ final class ClipboardModel {
         }
         if let image = NSImage(pasteboard: pasteboard), let thumbnail = image.thumbnail(maxSide: 160) {
             let data = pasteboard.data(forType: .png) ?? pasteboard.data(forType: .tiff) ?? Data()
-            return (.image(thumbnail), "image:\(data.count):\(data.hashValue)")
+            // hashValue 每次啟動都不一樣，用 SHA-256 才能和存起來的紀錄比對
+            let digest = SHA256.hash(data: data).prefix(16).map { String(format: "%02x", $0) }.joined()
+            return (.image(thumbnail), "image:\(data.count):\(digest)")
         }
         return nil
     }

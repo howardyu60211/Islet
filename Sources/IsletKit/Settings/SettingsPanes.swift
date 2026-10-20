@@ -224,21 +224,43 @@ struct ClipboardSettings: View {
         .disabled(!preferences.clipboardEnabled)
 
         Section {
-            LabeledContent(tr("目前的紀錄", "Entries"), value: tr("\(clipboard.items.count) 筆", "\(clipboard.items.count)"))
+            Picker(tr("保留筆數", "Keep"), selection: $preferences.clipboardHistoryLimit) {
+                ForEach(ClipboardModel.historyLimits, id: \.self) { limit in
+                    Text(tr("\(limit) 筆", "\(limit) entries")).tag(limit)
+                }
+            }
+            LabeledContent(
+                tr("目前的紀錄", "Entries"),
+                value: clipboard.pinnedCount > 0
+                    ? tr("\(clipboard.items.count) 筆（\(clipboard.pinnedCount) 筆釘選）", "\(clipboard.items.count) (\(clipboard.pinnedCount) pinned)")
+                    : tr("\(clipboard.items.count) 筆", "\(clipboard.items.count)")
+            )
             SettingsNote(tr(
-                "最多保留 \(ClipboardModel.maxItems) 筆，只存在記憶體裡，結束 App 就清掉。",
-                "Keeps up to \(ClipboardModel.maxItems) entries, in memory only; they’re cleared when the app quits."
+                "存在這台 Mac 上，結束 App、更新或重新開機後都還在。釘選的不算進筆數，也不會被自動刪掉。",
+                "Saved on this Mac, so it stays after quitting, updating or restarting. Pinned entries don’t count toward the limit and are never removed automatically."
             )) {
-                Button(tr("清除紀錄", "Clear History")) { clipboard.removeAll() }
+                Button(tr("清除紀錄…", "Clear History…")) { isConfirmingClear = true }
                     .disabled(clipboard.items.isEmpty)
             }
         } header: {
             Text(tr("紀錄", "History"))
         } footer: {
-            SettingsFooter(tr("密碼管理器標示為隱藏的內容不會記錄。", "Content that password managers mark as concealed is never recorded."))
+            SettingsFooter(tr("密碼管理器標示為隱藏的內容不會記錄。調低筆數時會刪掉多出來的舊紀錄。", "Content that password managers mark as concealed is never recorded. Lowering the limit removes the oldest extra entries."))
         }
         .disabled(!preferences.clipboardEnabled)
+        .confirmationDialog(tr("要清除剪貼簿紀錄嗎？", "Clear clipboard history?"), isPresented: $isConfirmingClear) {
+            if clipboard.pinnedCount < clipboard.items.count {
+                Button(tr("清除（保留釘選）", "Clear (Keep Pinned)"), role: .destructive) { clipboard.removeAll() }
+            }
+            if clipboard.pinnedCount > 0 {
+                Button(tr("連同釘選全部清除", "Clear Everything, Including Pinned"), role: .destructive) { clipboard.removeAll(includingPinned: true) }
+            }
+        } message: {
+            Text(tr("清除後無法復原。", "This can’t be undone."))
+        }
     }
+
+    @ViewState private var isConfirmingClear = false
 }
 
 struct ClockSettings: View {

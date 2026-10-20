@@ -38,6 +38,7 @@ final class Preferences {
         static let clipboardEnabled = "clipboardEnabled"
         static let clipboardAlertsEnabled = "clipboardAlertsEnabled"
         static let clipboardWheelSpeed = "clipboardWheelSpeed"
+        static let clipboardHistoryLimit = "clipboardHistoryLimit"
         static let focusMinutes = "pomodoroFocusMinutes"
         static let shortBreakMinutes = "pomodoroShortBreakMinutes"
         static let longBreakMinutes = "pomodoroLongBreakMinutes"
@@ -77,6 +78,8 @@ final class Preferences {
     var clipboardAlertsEnabled: Bool { didSet { save(clipboardAlertsEnabled, Key.clipboardAlertsEnabled) } }
     /// 觸控板轉剪貼簿滾輪的速度（見 WheelTracker.speedRange）。
     var clipboardWheelSpeed: Double { didSet { save(clipboardWheelSpeed, Key.clipboardWheelSpeed) } }
+    /// 剪貼簿最多保留幾筆（不含釘選的，見 ClipboardModel.historyLimits）。
+    var clipboardHistoryLimit: Int { didSet { save(clipboardHistoryLimit, Key.clipboardHistoryLimit) } }
 
     // 番茄鐘（分鐘）
     var focusMinutes: Int { didSet { save(focusMinutes, Key.focusMinutes) } }
@@ -116,6 +119,7 @@ final class Preferences {
         clipboardEnabled = defaults.object(forKey: Key.clipboardEnabled) as? Bool ?? true
         clipboardAlertsEnabled = defaults.object(forKey: Key.clipboardAlertsEnabled) as? Bool ?? true
         clipboardWheelSpeed = defaults.object(forKey: Key.clipboardWheelSpeed) as? Double ?? WheelTracker.defaultSpeed
+        clipboardHistoryLimit = defaults.object(forKey: Key.clipboardHistoryLimit) as? Int ?? ClipboardModel.defaultHistoryLimit
 
         focusMinutes = defaults.object(forKey: Key.focusMinutes) as? Int ?? 25
         shortBreakMinutes = defaults.object(forKey: Key.shortBreakMinutes) as? Int ?? 5

@@ -160,6 +160,11 @@ enum SnapshotRenderer {
                 island.expand(tab: .clipboard)
                 island.selectClipboardItem(at: 2)
             },
+            Scenario(name: "14d-expanded-clipboard-pinned") { island in
+                fillClipboard(island)
+                island.clipboard.togglePin(island.clipboard.items[3])
+                island.expand(tab: .clipboard)
+            },
             Scenario(name: "14b-expanded-clipboard-empty") { $0.expand(tab: .clipboard) },
             Scenario(name: "15-compact-clipboard-text") {
                 $0.post(IslandEvent(kind: .clipboard(ClipboardSummary(id: UUID(), kind: .text, excerpt: tr("會議改到週四下午三點", "Meeting moved to Thursday 3 PM"), image: nil))))

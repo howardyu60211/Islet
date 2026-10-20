@@ -446,11 +446,11 @@ final class IslandViewModel {
         }
     }
 
-    /// 每次展開都從最新的一筆開始（切換分頁不重設）。
+    /// 每次展開都從最新的一筆開始（釘選的在它上面；切換分頁不重設）。
     func resetClipboardWheel() {
         wheelSnapTask?.cancel()
-        clipboardWheel.select(0, count: clipboard.items.count)
-        clipboardSelectedID = clipboard.items.first?.id
+        clipboardWheel.select(clipboard.pinnedCount, count: clipboard.items.count)
+        clipboardSelectedID = selectedClipboardItem?.id
     }
 
     // MARK: - 拖曳檔案

@@ -58,7 +58,7 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 - Now playing is system-wide: any app works, including YouTube in a browser (via [mediaremote-adapter](https://github.com/ungive/mediaremote-adapter)). If a future macOS blocks this, the app falls back to a mode that only supports Music and Spotify.
 - When two activities run at once (music + timer, music + microphone, timer + screen recording…), the collapsed island shows one on each side of the notch, with music always on the left. Microphone / screen recording only appear next to another activity and never take over the island on their own. You can turn this off in Settings › General › When Collapsed to show only the highest-priority activity (timer > music).
 - Every kind of alert (including volume, Focus, microphone and screen recording) and the clipboard history can be turned on or off individually in Settings.
-- Clipboard history is kept in memory only and cleared when the app quits; content that password managers mark as concealed (`org.nspasteboard.ConcealedType` and similar) is never recorded.
+- Clipboard history is saved in `~/Library/Application Support/Islet/Clipboard` and survives quitting, updates and restarts (use Clear History to remove it); content that password managers mark as concealed (`org.nspasteboard.ConcealedType` and similar) is never recorded.
 - The interface follows your macOS language order: Traditional Chinese if Chinese comes before English, English otherwise. To choose one yourself, use Settings › General › Language (takes effect after a restart).
 - Hovering over the notch expands the island (or switch to click-to-expand), and moving away collapses it; clicks outside the island pass straight through to the menu bar.
 

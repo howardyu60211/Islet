@@ -12,7 +12,7 @@ final class AppServices {
     let focus = FocusMonitor()
     let microphone = MicrophoneMonitor()
     let screenRecording = ScreenRecordingMonitor()
-    let clipboard = ClipboardModel()
+    let clipboard: ClipboardModel
     let backgroundApps = BackgroundAppsModel()
     let timerAlert: TimerAlert
     let island: IslandViewModel
@@ -22,6 +22,7 @@ final class AppServices {
 
     init() {
         timer = TimerModel(preferences: preferences)
+        clipboard = ClipboardModel(store: ClipboardStore(), historyLimit: preferences.clipboardHistoryLimit)
         timerAlert = TimerAlert(nowPlaying: nowPlaying)
         island = IslandViewModel(
             preferences: preferences,
@@ -161,6 +162,8 @@ final class AppServices {
             preferences.screenRecordingIndicatorEnabled ? screenRecording.start() : screenRecording.stop()
         case Preferences.Key.clipboardEnabled:
             preferences.clipboardEnabled ? clipboard.start() : clipboard.stop()
+        case Preferences.Key.clipboardHistoryLimit:
+            clipboard.historyLimit = preferences.clipboardHistoryLimit
         case Preferences.Key.timerEnabled:
             if !preferences.timerEnabled {
                 timer.reset()
