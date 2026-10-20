@@ -2,7 +2,7 @@ APP_NAME := Islet
 APP := build/$(APP_NAME).app
 CONFIG ?= release
 
-.PHONY: all app run debug test adapter icon screenshots install clean
+.PHONY: all app run debug test adapter icon screenshots install dmg clean
 
 all: app
 
@@ -42,6 +42,10 @@ install: app
 	rm -rf ~/Applications/$(APP_NAME).app
 	ditto $(APP) ~/Applications/$(APP_NAME).app
 	open ~/Applications/$(APP_NAME).app
+
+# 打包成 build/Islet-<版本>.dmg（發佈用，固定是 Release 建置）
+dmg:
+	./scripts/make-dmg.sh
 
 clean:
 	rm -rf .build build

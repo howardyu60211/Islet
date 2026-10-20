@@ -65,7 +65,18 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 ## Requirements
 
 - A MacBook with a notch, running macOS 14 or later (developed on a MacBook Air M5 with macOS 27)
-- Xcode or the Command Line Tools (Swift 6.2 or later). The Command Line Tools alone are enough to build.
+- To build from source: Xcode or the Command Line Tools (Swift 6.2 or later). The Command Line Tools alone are enough.
+
+## Download
+
+Get `Islet-<version>.dmg` from [Releases](https://github.com/howardyu60211/Islet/releases/latest), open it, and drag Islet into Applications.
+
+The app isn't notarized by Apple, so macOS blocks it the first time you open it. To allow it, do either of these:
+
+- Try to open it once, then go to System Settings › Privacy & Security, scroll to the bottom and click "Open Anyway".
+- Or run `xattr -dr com.apple.quarantine /Applications/Islet.app` in Terminal.
+
+Release builds are ad-hoc signed, so after each update macOS asks for Bluetooth access again and Full Disk Access has to be re-allowed.
 
 ## Build and run
 
@@ -79,6 +90,7 @@ This compiles, assembles `build/Islet.app` and launches it. Other commands:
 |---|---|
 | `make debug` | Debug build; adds a "Simulate Event" submenu to the menu bar item so you can preview plugging in, AirPods, timer finished and more without real hardware |
 | `make install` | Installs to `~/Applications` and launches it (recommended if you use "Open at login") |
+| `make dmg` | Release build packaged as `build/Islet-<version>.dmg` (version from `Info.plist`) for publishing |
 | `make test` | Runs the unit tests (Swift Testing) |
 | `make screenshots` | Regenerates the README screenshots in both languages (`docs/images/en`, `docs/images/zh-Hant`) |
 | `make icon` | Regenerates `Resources/AppIcon.icns` |
@@ -111,7 +123,7 @@ SIGN_IDENTITY="Islet Dev" make run
 
 ```
 Package.swift                 Swift Package (no Xcode project needed)
-Makefile, scripts/            Build, bundling, signing, app icon, README screenshots
+Makefile, scripts/            Build, bundling, signing, DMG, app icon, README screenshots
 Resources/                    Info.plist, app icon, localized app name and permission prompts (*.lproj)
 Vendor/mediaremote-adapter/   System-wide now playing (BSD-3, see Vendor/README.md)
 docs/images/                  README screenshots (en, zh-Hant)

@@ -63,7 +63,18 @@
 ## 需求
 
 - 有瀏海的 MacBook，macOS 14 以上（在 macOS 27 的 MacBook Air M5 上開發）
-- Xcode 或 Command Line Tools（Swift 6.2 以上）。只裝 Command Line Tools 就能建置。
+- 要自己建置的話：Xcode 或 Command Line Tools（Swift 6.2 以上）。只裝 Command Line Tools 就夠了。
+
+## 下載
+
+到 [Releases](https://github.com/howardyu60211/Islet/releases/latest) 下載 `Islet-<版本>.dmg`，打開後把 Islet 拖進「應用程式」。
+
+App 沒有經過 Apple 公證，第一次打開會被 macOS 擋下。用下面任一種方式允許：
+
+- 先試著打開一次，再到「系統設定 › 隱私權與安全性」，捲到最下面按「強制打開」。
+- 或在終端機執行 `xattr -dr com.apple.quarantine /Applications/Islet.app`。
+
+發佈版是 ad-hoc 簽章，所以每次更新後 macOS 會再問一次藍牙權限，「完整磁碟取用權限」也要重新允許。
 
 ## 建置與執行
 
@@ -77,6 +88,7 @@ make run
 |---|---|
 | `make debug` | Debug 建置；選單列多一個「模擬事件」子選單，不用實機就能看插電、AirPods、計時結束等畫面 |
 | `make install` | 安裝到 `~/Applications` 並啟動（要「登入時自動開啟」建議用安裝後的版本） |
+| `make dmg` | Release 建置並打包成 `build/Islet-<版本>.dmg`（版本取自 `Info.plist`），發佈用 |
 | `make test` | 執行單元測試（Swift Testing） |
 | `make screenshots` | 重新產生 README 的中英文截圖（`docs/images/en`、`docs/images/zh-Hant`） |
 | `make icon` | 重新產生 `Resources/AppIcon.icns` |
@@ -109,7 +121,7 @@ SIGN_IDENTITY="Islet Dev" make run
 
 ```
 Package.swift                 Swift Package（不需要 Xcode 專案）
-Makefile, scripts/            建置、打包、簽章、App 圖示、README 截圖
+Makefile, scripts/            建置、打包、簽章、DMG、App 圖示、README 截圖
 Resources/                    Info.plist、App 圖示、各語言的 App 名稱與權限說明（*.lproj）
 Vendor/mediaremote-adapter/   全系統「正在播放」（BSD-3，見 Vendor/README.md）
 docs/images/                  README 截圖（en、zh-Hant）
