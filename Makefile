@@ -2,7 +2,7 @@ APP_NAME := Islet
 APP := build/$(APP_NAME).app
 CONFIG ?= release
 
-.PHONY: all app run debug test adapter icon screenshots install dmg clean
+.PHONY: all app run debug test adapter icon screenshots install dmg release clean
 
 all: app
 
@@ -46,6 +46,10 @@ install: app
 # 打包成 build/Islet-<版本>.dmg（發佈用，固定是 Release 建置）
 dmg:
 	./scripts/make-dmg.sh
+
+# 發佈新版本：make release VERSION=0.2.0（改版本號、打包、產生 appcast、commit／tag，再推上 GitHub Release）
+release:
+	VERSION=$(VERSION) ./scripts/release.sh
 
 clean:
 	rm -rf .build build

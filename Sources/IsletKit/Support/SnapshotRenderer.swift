@@ -69,6 +69,7 @@ enum SnapshotRenderer {
                 shelf: ShelfModel(defaults: defaults),
                 clipboard: clipboard,
                 backgroundApps: sampleBackgroundApps(defaults: defaults, filled: true),
+                updater: Updater(enabled: false),
                 initialPane: pane
             )
             let window = NSWindow(contentViewController: NSHostingController(rootView: view))

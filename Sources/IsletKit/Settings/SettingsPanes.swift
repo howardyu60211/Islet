@@ -303,13 +303,26 @@ struct ClockSettings: View {
 }
 
 struct AboutSettings: View {
+    @Bindable var updater: Updater
+
     var body: some View {
         Section {
             LabeledContent(tr("版本", "Version"), value: Self.version)
         }
 
+        Section(tr("更新", "Updates")) {
+            Toggle(tr("自動檢查更新", "Automatically Check for Updates"), isOn: $updater.automaticallyChecksForUpdates)
+            LabeledContent(tr("立即檢查", "Check Now")) {
+                Button(tr("檢查更新…", "Check for Updates…")) { updater.checkForUpdates() }
+            }
+        }
+        .disabled(!updater.isAvailable)
+
         Section(tr("第三方元件", "Third-Party Components")) {
             Text(tr("全系統「正在播放」使用 mediaremote-adapter（BSD-3-Clause，© Jonas van den Berg 與貢獻者），授權條款在 App 的 Resources 資料夾內。", "System-wide Now Playing uses mediaremote-adapter (BSD-3-Clause, © Jonas van den Berg and contributors). Its license is in the app’s Resources folder."))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(tr("自動更新使用 Sparkle（MIT，© Andy Matuschak 與 Sparkle Project 貢獻者），授權條款在 App 的 Resources 資料夾內。", "Automatic updates use Sparkle (MIT, © Andy Matuschak and the Sparkle Project contributors). Its license is in the app’s Resources folder."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

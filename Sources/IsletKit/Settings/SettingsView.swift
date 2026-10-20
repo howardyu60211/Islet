@@ -61,7 +61,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .clipboard: tr("記錄最近拷貝的文字、連結、圖片與檔案，點一下就能再拷貝。", "Keeps recently copied text, links, images and files; click one to copy it again.")
         case .clock: tr("計時器與番茄鐘，時間到時在瀏海提示並播放提示音。", "A timer and Pomodoro that alert you in the notch with a sound when time’s up.")
         case .backgroundApps: tr("把關掉選單列圖示的 App 收在展開後的頂部條，看得到有沒有在執行，點一下就能打開設定。", "Keeps apps whose menu bar icons you’ve turned off in the expanded top bar, so you can see they’re running and open their settings with a click.")
-        case .about: tr("版本與授權資訊。", "Version and license information.")
+        case .about: tr("版本、更新與授權資訊。", "Version, updates and license information.")
         }
     }
 }
@@ -73,6 +73,7 @@ struct SettingsView: View {
     let shelf: ShelfModel
     let clipboard: ClipboardModel
     let backgroundApps: BackgroundAppsModel
+    let updater: Updater
 
     @ViewState private var selection: SettingsPane?
 
@@ -83,6 +84,7 @@ struct SettingsView: View {
         shelf: ShelfModel,
         clipboard: ClipboardModel,
         backgroundApps: BackgroundAppsModel,
+        updater: Updater,
         initialPane: SettingsPane = .general
     ) {
         self.preferences = preferences
@@ -91,6 +93,7 @@ struct SettingsView: View {
         self.shelf = shelf
         self.clipboard = clipboard
         self.backgroundApps = backgroundApps
+        self.updater = updater
         _selection = ViewState(initialValue: initialPane)
     }
 
@@ -128,7 +131,7 @@ struct SettingsView: View {
         case .clipboard: ClipboardSettings(preferences: preferences, clipboard: clipboard)
         case .clock: ClockSettings(preferences: preferences)
         case .backgroundApps: BackgroundAppsSettings(model: backgroundApps)
-        case .about: AboutSettings()
+        case .about: AboutSettings(updater: updater)
         }
     }
 }

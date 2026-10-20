@@ -35,6 +35,11 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.addItem(item(tr("隱藏選單列圖示", "Hide Menu Bar Icon")) { [weak self] in
             self?.services.preferences.menuBarIconHidden = true
         })
+        if services.updater.isAvailable {
+            menu.addItem(item(tr("檢查更新…", "Check for Updates…")) { [weak self] in
+                self?.services.updater.checkForUpdates()
+            })
+        }
         #if DEBUG
         menu.addItem(.separator())
         menu.addItem(makeDebugMenuItem())

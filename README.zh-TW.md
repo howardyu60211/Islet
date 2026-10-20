@@ -76,6 +76,8 @@ App 沒有經過 Apple 公證，第一次打開會被 macOS 擋下。用下面�
 
 發佈版是 ad-hoc 簽章，所以每次更新後 macOS 會再問一次藍牙權限，「完整磁碟取用權限」也要重新允許。
 
+更新透過 [Sparkle](https://sparkle-project.org) 安裝：Islet 會自動檢查新版本、在背景下載，結束 App 時裝好。可以在設定「關於」關掉自動檢查或立即檢查，也可以從選單列圖示選「檢查更新…」。
+
 ## 建置與執行
 
 ```bash
@@ -89,6 +91,7 @@ make run
 | `make debug` | Debug 建置；選單列多一個「模擬事件」子選單，不用實機就能看插電、AirPods、計時結束等畫面 |
 | `make install` | 安裝到 `~/Applications` 並啟動（要「登入時自動開啟」建議用安裝後的版本） |
 | `make dmg` | Release 建置並打包成 `build/Islet-<版本>.dmg`（版本取自 `Info.plist`），發佈用 |
+| `make release VERSION=x.y.z` | 發佈新版本，見[發佈新版本](#發佈新版本) |
 | `make test` | 執行單元測試（Swift Testing） |
 | `make screenshots` | 重新產生 README 的中英文截圖（`docs/images/en`、`docs/images/zh-Hant`） |
 | `make icon` | 重新產生 `Resources/AppIcon.icns` |
@@ -117,17 +120,29 @@ App 沒有 Dock 圖示；從選單列的膠囊圖示可以打開設定、暫時�
 SIGN_IDENTITY="Islet Dev" make run
 ```
 
+## 發佈新版本
+
+```bash
+make release VERSION=0.2.0
+```
+
+會改好 `Info.plist` 的版本號（並把 Sparkle 比對用的 `CFBundleVersion` 加一）、打包 DMG、產生用 EdDSA 金鑰簽過的 `build/release/appcast.xml`、commit 並建立 tag `v0.2.0`，最後問要不要推上 GitHub，並建立附上 DMG 與 `appcast.xml` 的 Release（需要 [gh](https://cli.github.com)；沒有的話會印出手動步驟）。App 讀的是 `releases/latest/download/appcast.xml`，所以永遠拿到最新一版的更新清單。
+
+- 更新說明寫在 `docs/release-notes/<版本>.md`（可省略），會顯示在 Sparkle 的更新視窗，也會當成 GitHub Release 的說明。
+- EdDSA 私鑰存在登入鑰匙圈裡（用 Sparkle 的 `generate_keys` 產生，公鑰是 `Info.plist` 的 `SUPublicEDKey`）。**請務必備份**：私鑰不見的話，已安裝的 App 就無法驗證之後的更新。用 `.build/artifacts/sparkle/Sparkle/bin/generate_keys -x <檔案>` 匯出，在別台 Mac 用 `-f <檔案>` 匯入。
+- 每次發佈都用同一張自簽憑證簽章（`SIGN_IDENTITY="Islet Dev" make release VERSION=…`），更新前後的簽章才會一致；用 ad-hoc 簽章的話，使用者每次更新後都要重新允許藍牙與完整磁碟取用權限。
+
 ## 專案結構
 
 ```
 Package.swift                 Swift Package（不需要 Xcode 專案）
-Makefile, scripts/            建置、打包、簽章、DMG、App 圖示、README 截圖
+Makefile, scripts/            建置、打包、簽章、DMG、發佈、App 圖示、README 截圖
 Resources/                    Info.plist、App 圖示、各語言的 App 名稱與權限說明（*.lproj）
 Vendor/mediaremote-adapter/   全系統「正在播放」（BSD-3，見 Vendor/README.md）
 docs/images/                  README 截圖（en、zh-Hant）
 Sources/Islet/                進入點
 Sources/IsletKit/
-  App/        啟動、服務組裝、選單列
+  App/        啟動、服務組裝、選單列、自動更新
   Window/     瀏海面板、瀏海位置計算、滑鼠追蹤
   Island/     狀態機（優先序、事件排隊）、形狀、收合／通知／展開畫面
   Features/   NowPlaying、Battery、Timer、Shelf、Bluetooth、Clipboard、Focus、Sensors（麥克風／螢幕錄影）、System（音量）
@@ -161,3 +176,5 @@ Tests/IsletKitTests/          單元測試
 本專案以 MIT 授權釋出，見 [LICENSE](LICENSE)。
 
 `Vendor/mediaremote-adapter` 為 BSD-3-Clause 授權，© Jonas van den Berg 與貢獻者。
+
+[Sparkle](https://github.com/sparkle-project/Sparkle) 為 MIT 授權，© Andy Matuschak 與 Sparkle Project 貢獻者。

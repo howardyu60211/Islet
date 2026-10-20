@@ -9,16 +9,18 @@ final class SettingsWindowController {
     private let shelf: ShelfModel
     private let clipboard: ClipboardModel
     private let backgroundApps: BackgroundAppsModel
+    private let updater: Updater
     private var window: NSWindow?
     private var hairlineFix: HairlineBorderFix?
 
-    init(preferences: Preferences, nowPlaying: NowPlayingModel, focus: FocusMonitor, shelf: ShelfModel, clipboard: ClipboardModel, backgroundApps: BackgroundAppsModel) {
+    init(preferences: Preferences, nowPlaying: NowPlayingModel, focus: FocusMonitor, shelf: ShelfModel, clipboard: ClipboardModel, backgroundApps: BackgroundAppsModel, updater: Updater) {
         self.preferences = preferences
         self.nowPlaying = nowPlaying
         self.focus = focus
         self.shelf = shelf
         self.clipboard = clipboard
         self.backgroundApps = backgroundApps
+        self.updater = updater
     }
 
     func show() {
@@ -34,7 +36,8 @@ final class SettingsWindowController {
             focus: focus,
             shelf: shelf,
             clipboard: clipboard,
-            backgroundApps: backgroundApps
+            backgroundApps: backgroundApps,
+            updater: updater
         ))
         controller.sizingOptions = [.preferredContentSize]
         let window = NSWindow(contentViewController: controller)

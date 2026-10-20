@@ -14,6 +14,7 @@ final class AppServices {
     let screenRecording = ScreenRecordingMonitor()
     let clipboard: ClipboardModel
     let backgroundApps = BackgroundAppsModel()
+    let updater = Updater()
     let timerAlert: TimerAlert
     let island: IslandViewModel
     let windowController: NotchWindowController
@@ -42,7 +43,8 @@ final class AppServices {
             focus: focus,
             shelf: shelf,
             clipboard: clipboard,
-            backgroundApps: backgroundApps
+            backgroundApps: backgroundApps,
+            updater: updater
         )
     }
 

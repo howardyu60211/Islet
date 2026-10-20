@@ -12,9 +12,16 @@ let package = Package(
     products: [
         .executable(name: "Islet", targets: ["Islet"]),
     ],
+    dependencies: [
+        // 自動更新
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0"),
+    ],
     targets: [
         .target(
             name: "IsletKit",
+            dependencies: [
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
             swiftSettings: swiftSettings
         ),
         .executableTarget(

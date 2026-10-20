@@ -37,6 +37,12 @@
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/howardyu60211/Islet/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>8PYjELBJ7tI//hLh9h1VmlVHaPfdh07X4TDUMZ+Chso=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Islet 會在藍牙耳機連線或中斷時顯示提示。</string>
 	<key>NSAppleEventsUsageDescription</key>

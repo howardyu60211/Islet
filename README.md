@@ -78,6 +78,8 @@ The app isn't notarized by Apple, so macOS blocks it the first time you open it.
 
 Release builds are ad-hoc signed, so after each update macOS asks for Bluetooth access again and Full Disk Access has to be re-allowed.
 
+Updates are installed with [Sparkle](https://sparkle-project.org): Islet checks for a new version automatically, downloads it in the background and installs it when you quit. You can turn automatic checks off or check now in Settings › About, or choose "Check for Updates…" from the menu bar item.
+
 ## Build and run
 
 ```bash
@@ -91,6 +93,7 @@ This compiles, assembles `build/Islet.app` and launches it. Other commands:
 | `make debug` | Debug build; adds a "Simulate Event" submenu to the menu bar item so you can preview plugging in, AirPods, timer finished and more without real hardware |
 | `make install` | Installs to `~/Applications` and launches it (recommended if you use "Open at login") |
 | `make dmg` | Release build packaged as `build/Islet-<version>.dmg` (version from `Info.plist`) for publishing |
+| `make release VERSION=x.y.z` | Publishes a new version; see [Publishing a release](#publishing-a-release) |
 | `make test` | Runs the unit tests (Swift Testing) |
 | `make screenshots` | Regenerates the README screenshots in both languages (`docs/images/en`, `docs/images/zh-Hant`) |
 | `make icon` | Regenerates `Resources/AppIcon.icns` |
@@ -119,17 +122,29 @@ Builds are ad-hoc signed by default, so the signature changes on every rebuild a
 SIGN_IDENTITY="Islet Dev" make run
 ```
 
+## Publishing a release
+
+```bash
+make release VERSION=0.2.0
+```
+
+This sets the version in `Info.plist` (and bumps `CFBundleVersion`, which Sparkle compares), builds the DMG, writes `build/release/appcast.xml` signed with the EdDSA key, commits and tags `v0.2.0`, then asks whether to push and create the GitHub Release with the DMG and `appcast.xml` (needs [gh](https://cli.github.com); without it the script prints the manual steps). The app reads `releases/latest/download/appcast.xml`, so the newest Release always serves the feed.
+
+- Release notes go in `docs/release-notes/<version>.md` (optional). They're shown in Sparkle's update window and used for the GitHub Release.
+- The EdDSA private key lives in your login Keychain (created with Sparkle's `generate_keys`; the public key is `SUPublicEDKey` in `Info.plist`). **Back it up**: if it's lost, installed copies can no longer verify updates. Export it with `.build/artifacts/sparkle/Sparkle/bin/generate_keys -x <file>` and import it on another Mac with `-f <file>`.
+- Sign releases with the same self-signed certificate every time (`SIGN_IDENTITY="Islet Dev" make release VERSION=…`) so the signature stays stable across updates; with ad-hoc signing, users have to re-allow Bluetooth and Full Disk Access after each update.
+
 ## Project structure
 
 ```
 Package.swift                 Swift Package (no Xcode project needed)
-Makefile, scripts/            Build, bundling, signing, DMG, app icon, README screenshots
+Makefile, scripts/            Build, bundling, signing, DMG, release, app icon, README screenshots
 Resources/                    Info.plist, app icon, localized app name and permission prompts (*.lproj)
 Vendor/mediaremote-adapter/   System-wide now playing (BSD-3, see Vendor/README.md)
 docs/images/                  README screenshots (en, zh-Hant)
 Sources/Islet/                Entry point
 Sources/IsletKit/
-  App/        Startup, service wiring, menu bar item
+  App/        Startup, service wiring, menu bar item, auto-update
   Window/     Notch panel, notch geometry, mouse tracking
   Island/     State machine (priorities, event queue), shape, collapsed/notification/expanded views
   Features/   NowPlaying, Battery, Timer, Shelf, Bluetooth, Clipboard, Focus, Sensors (microphone/screen recording), System (volume)
@@ -163,3 +178,5 @@ Tests/IsletKitTests/          Unit tests
 Released under the MIT License; see [LICENSE](LICENSE).
 
 `Vendor/mediaremote-adapter` is licensed under BSD-3-Clause, © Jonas van den Berg and contributors.
+
+[Sparkle](https://github.com/sparkle-project/Sparkle) is licensed under the MIT License, © Andy Matuschak and the Sparkle Project contributors.
