@@ -48,7 +48,7 @@ The screenshots are rendered by the app itself with `make screenshots` (fake wal
 | Charging & battery | Shows "Charging" and the level when plugged in; alerts once each at low battery (20 %, 10 %) and when fully charged | Battery level in the top bar (when the app tray is empty) |
 | App tray | — | Apps whose menu bar icons you've turned off (DockDoor, LinearMouse…) sit on the right of the top bar: in color when running, gray when not. Click one to reopen it (usually shows its settings window); right-click to open settings, launch, quit or remove it |
 | File shelf | Drag files onto the notch to expand it | Drop onto the shelf or AirDrop; drag items back out, double-click to open, right-click for a menu |
-| Timer / Pomodoro | Progress ring and time remaining | Presets (1/10/30/60/90/120 min), Pomodoro focus/break lengths and rounds, start/pause/reset/skip |
+| Timer / Pomodoro | Progress ring and time remaining | Presets (1/10/30/60/90/120 min), Pomodoro focus/break lengths and auto-continue (rounds keep counting up), start/pause/reset/skip |
 | Bluetooth headphones | Alert on connect/disconnect; AirPods show left, right and case battery | — |
 | Volume | Speaker icon and level bar beside the notch when you change volume or mute | — |
 | Focus | Icon, name and state when a Focus mode turns on or off | — |

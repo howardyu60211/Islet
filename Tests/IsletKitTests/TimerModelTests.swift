@@ -51,7 +51,7 @@ struct TimerModelTests {
         model.finish()
         #expect(events == [.timerFinished(title: "時間到！", subtitle: "5 分鐘計時結束")])
         #expect(model.runState == .idle)
-        #expect(model.duration == 300)
+        #expect(model.clock(.countdown).duration == 300)
     }
 
     @Test func countdownMinutesAreClamped() {
@@ -65,10 +65,9 @@ struct TimerModelTests {
 
     @Test func pomodoroAlternatesFocusAndBreaksWithALongBreakEveryFourSessions() {
         let (model, _, preferences) = makeModel()
-        preferences.pomodoroRounds = 8
         model.setMode(.pomodoro)
         #expect(model.phase == .focus)
-        #expect(model.duration == TimeInterval(preferences.focusMinutes * 60))
+        #expect(model.clock(.pomodoro).duration == TimeInterval(preferences.focusMinutes * 60))
 
         var phases: [TimerModel.Phase] = []
         for _ in 0..<8 {
@@ -76,23 +75,133 @@ struct TimerModelTests {
             phases.append(model.phase)
         }
         #expect(phases == [.shortBreak, .focus, .shortBreak, .focus, .shortBreak, .focus, .longBreak, .focus])
-        // 長休息後繼續累計，直到做完設定的輪數
         #expect(model.completedFocusSessions == 4)
     }
 
-    @Test func pomodoroStopsAfterTheConfiguredRounds() {
-        let (model, _, preferences) = makeModel(autoStart: true)
-        preferences.pomodoroRounds = 2
+    @Test func pomodoroKeepsCountingRoundsWithoutStopping() {
+        let (model, _, _) = makeModel()
         var events: [IslandEvent.Kind] = []
         model.onFinished = { events.append($0) }
         model.setMode(.pomodoro)
-        model.finish() // 第 1 輪專注 → 短休息
-        model.finish() // 短休息 → 第 2 輪專注
-        model.finish() // 第 2 輪專注結束 → 全部完成
-        #expect(events.last == .timerFinished(title: "番茄鐘完成！", subtitle: "完成 2 輪專注，好好休息吧"))
+        for _ in 0..<40 { model.finish() } // 20 輪專注 + 20 次休息
         #expect(model.phase == .focus)
+        #expect(model.currentRound == 21)
+        #expect(model.completedFocusSessions == 20)
+        #expect(events.last == .timerFinished(title: "休息結束", subtitle: "開始下一輪專注"))
+    }
+
+    @Test func autoContinueControlsWhetherTheNextPhaseStarts() {
+        let (model, _, preferences) = makeModel()
+        model.setMode(.pomodoro)
+        model.start()
+        model.finish()
+        #expect(model.phase == .shortBreak)
         #expect(model.runState == .idle)
+
+        preferences.pomodoroAutoStart = true
+        model.start()
+        model.finish()
+        #expect(model.phase == .focus)
+        #expect(model.isRunning)
+    }
+
+    @Test func switchingModesKeepsThePomodoroWhereItWas() {
+        let (model, _, _) = makeModel()
+        model.setMode(.pomodoro)
+        model.finish()
+        #expect(Step(model.phase, model.currentRound) == Step(.shortBreak, 1))
+        model.setMode(.countdown)
+        model.setMode(.pomodoro)
+        #expect(Step(model.phase, model.currentRound) == Step(.shortBreak, 1))
+    }
+
+    @Test func countdownAndPomodoroRunAtTheSameTime() {
+        let (model, clock, preferences) = makeModel()
+        model.setMode(.pomodoro)
+        model.start()
+        clock.advance(60)
+
+        model.setCountdown(minutes: 5) // 切到計時器
+        model.start()
+        clock.advance(60)
+
+        #expect(model.mode == .countdown)
+        #expect(model.clock(.countdown).isRunning)
+        #expect(model.clock(.countdown).remaining(at: clock.now) == 240)
+        #expect(model.clock(.pomodoro).isRunning)
+        #expect(model.clock(.pomodoro).remaining(at: clock.now) == TimeInterval(preferences.focusMinutes * 60 - 120))
+        #expect(model.isActiveInBackground(.pomodoro))
+
+        // 暫停／時間到只影響自己那一個
+        model.pause()
+        #expect(!model.clock(.countdown).isRunning)
+        #expect(model.clock(.pomodoro).isRunning)
+        model.finish(.countdown)
+        #expect(model.clock(.countdown).runState == .idle)
+        #expect(model.clock(.pomodoro).isRunning)
+        #expect(model.clock(.pomodoro).phase == .focus)
+    }
+
+    @Test func pomodoroFinishesInTheBackgroundWithoutTouchingTheCountdown() {
+        let (model, clock, _) = makeModel()
+        var events: [IslandEvent.Kind] = []
+        model.onFinished = { events.append($0) }
+        model.setMode(.pomodoro)
+        model.start()
+        model.setCountdown(minutes: 5)
+        model.start()
+        model.finish(.pomodoro)
+        #expect(events == [.timerFinished(title: "專注時間結束", subtitle: "短休息 5 分鐘吧")])
+        #expect(model.clock(.pomodoro).phase == .shortBreak)
+        #expect(model.mode == .countdown)
+        #expect(model.clock(.countdown).remaining(at: clock.now) == 300)
+        #expect(model.clock(.countdown).isRunning)
+    }
+
+    @Test func compactShowsTheClockThatEndsFirst() {
+        let (model, _, _) = makeModel()
+        #expect(!model.isActive)
+        model.setMode(.pomodoro)
+        model.start() // 25 分
+        model.setCountdown(minutes: 5)
+        model.start()
+        #expect(model.compactMode == .countdown)
+        model.pause()
+        // 暫停的排在正在跑的後面
+        #expect(model.compactMode == .pomodoro)
+        model.reset()
+        model.setMode(.countdown)
+        #expect(model.compactMode == .pomodoro)
+        #expect(model.isActive)
+
+        model.resetAll()
+        #expect(!model.isActive)
+    }
+
+    @Test func choosingTheCurrentModeKeepsTheTimerRunning() {
+        let (model, _, _) = makeModel()
+        model.setMode(.pomodoro)
+        model.start()
+        model.setMode(.pomodoro)
+        #expect(model.isRunning)
+    }
+
+    @Test func startingOverGoesBackToRoundOne() {
+        let (model, _, _) = makeModel()
+        model.setMode(.pomodoro)
+        #expect(!model.canRestartPomodoro)
+        model.start()
+        model.finish()
+        model.finish()
+        model.finish()
+        #expect(Step(model.phase, model.currentRound) == Step(.shortBreak, 2))
+        #expect(model.canRestartPomodoro)
+
+        model.restartPomodoro()
+        #expect(Step(model.phase, model.currentRound) == Step(.focus, 1))
         #expect(model.completedFocusSessions == 0)
+        #expect(model.runState == .idle)
+        #expect(!model.canRestartPomodoro)
     }
 
     @Test func finishingFocusSuggestsTheBreak() {
@@ -113,12 +222,60 @@ struct TimerModelTests {
         #expect(model.isRunning)
     }
 
-    @Test func skippingDoesNotCountAsAFocusSession() {
+    /// 連按跳過時每一步的（階段, 輪數）。
+    private func skipSteps(_ model: TimerModel, count: Int) -> [Step] {
+        (0..<count).map { _ in
+            model.skipPhase()
+            return Step(model.phase, model.currentRound)
+        }
+    }
+
+    private struct Step: Equatable, CustomStringConvertible {
+        let phase: TimerModel.Phase
+        let round: Int
+        init(_ phase: TimerModel.Phase, _ round: Int) { self.phase = phase; self.round = round }
+        var description: String { "\(phase) \(round)" }
+    }
+
+    @Test func skippingKeepsMovingForwardThroughTheRounds() {
+        let (model, _, preferences) = makeModel()
+        preferences.longBreakInterval = 2
+        var events: [IslandEvent.Kind] = []
+        model.onFinished = { events.append($0) }
+        model.setMode(.pomodoro)
+        #expect(Step(model.phase, model.currentRound) == Step(.focus, 1))
+
+        #expect(skipSteps(model, count: 7) == [
+            Step(.shortBreak, 1), Step(.focus, 2),
+            Step(.longBreak, 2), Step(.focus, 3),
+            Step(.shortBreak, 3), Step(.focus, 4),
+            Step(.longBreak, 4),
+        ])
+        #expect(model.completedFocusSessions == 4)
+        #expect(model.runState == .idle)
+        // 跳過是使用者自己按的，不跳提示
+        #expect(events.isEmpty)
+    }
+
+    @Test func skippingAfterAFinishedFocusKeepsMovingForward() {
         let (model, _, _) = makeModel()
         model.setMode(.pomodoro)
+        model.finish() // 第 1 輪專注做完 → 短休息
+        #expect(Step(model.phase, model.currentRound) == Step(.shortBreak, 1))
+
+        #expect(skipSteps(model, count: 4) == [
+            Step(.focus, 2), Step(.shortBreak, 2),
+            Step(.focus, 3), Step(.shortBreak, 3),
+        ])
+    }
+
+    @Test func skippingStartsTheNextPhaseWhenAutoStartIsOn() {
+        let (model, _, _) = makeModel(autoStart: true)
+        model.setMode(.pomodoro)
+        model.start()
         model.skipPhase()
         #expect(model.phase == .shortBreak)
-        #expect(model.completedFocusSessions == 0)
+        #expect(model.isRunning)
     }
 
     @Test func scheduleHandlesCustomIntervals() {

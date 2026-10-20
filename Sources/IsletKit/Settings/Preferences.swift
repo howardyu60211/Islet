@@ -44,7 +44,6 @@ final class Preferences {
         static let longBreakMinutes = "pomodoroLongBreakMinutes"
         static let longBreakInterval = "pomodoroLongBreakInterval"
         static let pomodoroAutoStart = "pomodoroAutoStart"
-        static let pomodoroRounds = "pomodoroRounds"
         static let timerSound = "timerSound"
         static let timerPausesMusic = "timerPausesMusic"
     }
@@ -88,8 +87,6 @@ final class Preferences {
     /// 每幾輪專注後來一次長休息。
     var longBreakInterval: Int { didSet { save(longBreakInterval, Key.longBreakInterval) } }
     var pomodoroAutoStart: Bool { didSet { save(pomodoroAutoStart, Key.pomodoroAutoStart) } }
-    /// 總共要做幾輪專注，做完就停。
-    var pomodoroRounds: Int { didSet { save(pomodoroRounds, Key.pomodoroRounds) } }
 
     // 計時結束提示
     /// /System/Library/Sounds 裡的音效名稱。
@@ -126,7 +123,6 @@ final class Preferences {
         longBreakMinutes = defaults.object(forKey: Key.longBreakMinutes) as? Int ?? 15
         longBreakInterval = defaults.object(forKey: Key.longBreakInterval) as? Int ?? 4
         pomodoroAutoStart = defaults.object(forKey: Key.pomodoroAutoStart) as? Bool ?? false
-        pomodoroRounds = defaults.object(forKey: Key.pomodoroRounds) as? Int ?? 4
         timerSound = defaults.string(forKey: Key.timerSound) ?? "Hero"
         timerPausesMusic = defaults.object(forKey: Key.timerPausesMusic) as? Bool ?? true
     }

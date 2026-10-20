@@ -274,10 +274,9 @@ struct ClockSettings: View {
         Section(tr("番茄鐘", "Pomodoro")) {
             Stepper(tr("專注 \(preferences.focusMinutes) 分鐘", "Focus: \(preferences.focusMinutes) min"), value: $preferences.focusMinutes, in: 5...120, step: 5)
             Stepper(tr("短休息 \(preferences.shortBreakMinutes) 分鐘", "Short break: \(preferences.shortBreakMinutes) min"), value: $preferences.shortBreakMinutes, in: 1...30)
-            Stepper(tr("總共 \(preferences.pomodoroRounds) 輪專注", "Focus rounds: \(preferences.pomodoroRounds)"), value: $preferences.pomodoroRounds, in: 1...12)
             Stepper(tr("長休息 \(preferences.longBreakMinutes) 分鐘", "Long break: \(preferences.longBreakMinutes) min"), value: $preferences.longBreakMinutes, in: 5...60, step: 5)
             Stepper(tr("每 \(preferences.longBreakInterval) 次專注後長休息", "Long break every \(preferences.longBreakInterval) focus rounds"), value: $preferences.longBreakInterval, in: 2...8)
-            Toggle(tr("自動開始下一段", "Start the Next Phase Automatically"), isOn: $preferences.pomodoroAutoStart)
+            Toggle(tr("自動接續下一段計時", "Continue to the Next Phase Automatically"), isOn: $preferences.pomodoroAutoStart)
         }
         .disabled(!preferences.timerEnabled)
 

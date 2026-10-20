@@ -166,9 +166,9 @@ final class AppServices {
             clipboard.historyLimit = preferences.clipboardHistoryLimit
         case Preferences.Key.timerEnabled:
             if !preferences.timerEnabled {
-                timer.reset()
+                timer.resetAll()
             }
-        case Preferences.Key.focusMinutes, Preferences.Key.shortBreakMinutes, Preferences.Key.longBreakMinutes, Preferences.Key.pomodoroRounds:
+        case Preferences.Key.focusMinutes, Preferences.Key.shortBreakMinutes, Preferences.Key.longBreakMinutes:
             timer.preferencesChanged()
         default:
             break
