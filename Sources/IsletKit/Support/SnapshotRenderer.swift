@@ -45,10 +45,7 @@ enum SnapshotRenderer {
             scenario.configure(island)
             let renderer = ImageRenderer(content: SnapshotBackdrop(island: island, showsNotchGuide: showsNotchGuide))
             renderer.scale = 2
-            guard let image = renderer.nsImage,
-                  let tiff = image.tiffRepresentation,
-                  let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:])
-            else {
+            guard let png = renderer.nsImage?.pngData() else {
                 print("✗ \(scenario.name)")
                 continue
             }

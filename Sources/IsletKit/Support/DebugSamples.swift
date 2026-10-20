@@ -41,8 +41,7 @@ enum DebugArtwork {
             NSBezierPath(ovalIn: rect.insetBy(dx: 110, dy: 110)).fill()
             return true
         }
-        guard let tiff = image.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff) else { return nil }
-        return bitmap.representation(using: .png, properties: [:])
+        return image.pngData()
     }
 }
 #endif

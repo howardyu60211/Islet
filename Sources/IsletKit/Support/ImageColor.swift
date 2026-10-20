@@ -2,6 +2,12 @@ import AppKit
 import CoreImage
 
 extension NSImage {
+    /// PNG 檔案資料。本來就是點陣圖時直接編碼，不用先轉 TIFF 再解回來。
+    func pngData() -> Data? {
+        let bitmap = representations.first as? NSBitmapImageRep ?? tiffRepresentation.flatMap(NSBitmapImageRep.init(data:))
+        return bitmap?.representation(using: .png, properties: [:])
+    }
+
     /// 轉成固定大小的點陣圖。NSWorkspace 給的 App 圖示是延遲繪製的 IconServices 圖，
     /// 直接放進 SwiftUI 會有繪製問題，也比較耗資源。
     func bitmapCopy(pointSize: CGFloat, scale: CGFloat = 2) -> NSImage? {
