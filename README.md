@@ -76,7 +76,7 @@ The app isn't notarized by Apple, so macOS blocks it the first time you open it.
 - Try to open it once, then go to System Settings › Privacy & Security, scroll to the bottom and click "Open Anyway".
 - Or run `xattr -dr com.apple.quarantine /Applications/Islet.app` in Terminal.
 
-Release builds are ad-hoc signed, so after each update macOS asks for Bluetooth access again and Full Disk Access has to be re-allowed.
+Since 0.2.0, releases are signed with the same self-signed certificate every time, so macOS keeps Bluetooth and Full Disk Access allowed across updates. Coming from 0.1.0 (ad-hoc signed), you need to allow them once more.
 
 Updates are installed with [Sparkle](https://sparkle-project.org): Islet checks for a new version automatically, downloads it in the background and installs it when you quit. You can turn automatic checks off or check now in Settings › About, or choose "Check for Updates…" from the menu bar item.
 
